@@ -1,0 +1,26 @@
+<!DOCTYPE node PUBLIC "-//freedesktop//DTD D-BUS Object Introspection 1.0//EN" "http://www.freedesktop.org/standards/dbus/1.0/introspect.dtd">
+<node>
+  <interface name="org.asteroid.hands">
+    <method name="HasHands">
+      <arg type="b" direction="out"/>
+    </method>
+    <method name="SetWatchMode">
+      <arg type="i" direction="out"/>
+      <arg name="enable" type="b" direction="in"/>
+    </method>
+    <method name="MoveHands">
+      <arg type="i" direction="out"/>
+      <arg type="i" direction="in"/>
+      <arg type="i" direction="in"/>
+    </method>
+    <method name="MoveAllHands">
+      <arg type="i" direction="out"/>
+      <arg type="i" direction="in"/>
+    </method>
+    <method name="Calibrate">
+      <arg type="i" direction="out"/>
+      <arg type="i" direction="in"/>
+      <arg type="i" direction="in"/>
+    </method>
+  </interface>
+</node>
