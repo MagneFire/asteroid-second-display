@@ -1,0 +1,12 @@
+[Unit]
+Description=AsteroidOS second-display daemon
+DefaultDependencies=no
+Requires=dbus.service
+After=local-fs.target dbus.service
+
+[Service]
+Type=notify
+ExecStart=/usr/bin/asteroid-seconddisplayd
+
+[Install]
+WantedBy=multi-user.target
