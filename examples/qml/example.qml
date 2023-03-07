@@ -17,4 +17,8 @@ Item {
             console.log("hands: " + hands.hasHands)
         }
     }
+    MouseArea {
+        anchors.fill: parent
+        onClicked: secondDisplay.synchronizeTime()
+    }
 }
