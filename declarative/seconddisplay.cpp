@@ -22,3 +22,12 @@ bool SecondDisplay::hasSecondDisplay() const
 
     return display->HasSecondDisplay();
 }
+bool SecondDisplay::synchronizeTime() const
+{
+    if (!display->isValid()) {
+        qDebug() << "No remote connection! Daemon not active?";
+        return false;
+    }
+
+    return display->SynchronizeTime();
+}

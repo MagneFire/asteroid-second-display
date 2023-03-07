@@ -14,6 +14,7 @@ class SecondDisplay : public QObject
     ~SecondDisplay();
 
     bool hasSecondDisplay() const;
+    Q_INVOKABLE bool synchronizeTime() const;
 
    private:
     org::asteroid::display *display;
