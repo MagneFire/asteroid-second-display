@@ -25,3 +25,6 @@ target_link_libraries(asteroid-second-display
     Qt5::DBus
     Qt5::Qml
     Qt5::Quick)
+
+install(TARGETS asteroid-second-display
+    DESTINATION ${CMAKE_INSTALL_BINDIR})
