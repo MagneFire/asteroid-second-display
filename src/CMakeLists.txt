@@ -30,7 +30,10 @@ include_directories(${INCLUDES})
 add_executable(asteroid-seconddisplayd ${SRC} ${HEADERS})
 
 target_link_libraries(asteroid-seconddisplayd PRIVATE
-	Qt5::DBus)
+	Qt5::DBus Mlite5::Mlite5)
 
 install(TARGETS asteroid-seconddisplayd
 	DESTINATION ${CMAKE_INSTALL_BINDIR})
+
+install(FILES ../systemd/asteroid-seconddisplayd.service
+    DESTINATION /usr/lib/systemd/system)
