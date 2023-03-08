@@ -36,4 +36,4 @@ install(TARGETS asteroid-seconddisplayd
 	DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 install(FILES ../systemd/asteroid-seconddisplayd.service
-    DESTINATION /usr/lib/systemd/system)
+    DESTINATION /lib/systemd/system)
