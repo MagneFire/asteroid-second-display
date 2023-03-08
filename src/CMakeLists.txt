@@ -1,5 +1,5 @@
 set(SRC
-	main.cpp
+    main.cpp
     backend.cpp
     backend_catfish.cpp
 )
@@ -30,10 +30,13 @@ include_directories(${INCLUDES})
 add_executable(asteroid-seconddisplayd ${SRC} ${HEADERS})
 
 target_link_libraries(asteroid-seconddisplayd PRIVATE
-	Qt5::DBus Mlite5::Mlite5 ${LIBHYBRIS_LIBRARIES})
+    Qt5::DBus Mlite5::Mlite5 ${LIBHYBRIS_LIBRARIES})
 
 install(TARGETS asteroid-seconddisplayd
-	DESTINATION ${CMAKE_INSTALL_BINDIR})
+    DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 install(FILES ../systemd/asteroid-seconddisplayd.service
     DESTINATION /lib/systemd/system)
+
+install(FILES ../dbus/org.asteroid.SecondDisplay.conf
+    DESTINATION /etc/dbus-1/system.d)
