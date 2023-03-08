@@ -5,7 +5,7 @@ Requires=dbus.service
 After=local-fs.target dbus.service
 
 [Service]
-Type=notify
+Type=simple
 ExecStart=/usr/bin/asteroid-seconddisplayd
 
 [Install]
