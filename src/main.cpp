@@ -21,7 +21,7 @@ int main(int argc, char** argv)
 
     new DisplayAdaptor(backend);
     new HandsAdaptor(hands);
-    QDBusConnection connection = QDBusConnection::sessionBus();
+    QDBusConnection connection = QDBusConnection::systemBus();
     connection.registerObject(DISPLAY_OBJECT, backend);
     connection.registerObject(HANDS_OBJECT, hands);
     connection.registerService(SERVICE_NAME);

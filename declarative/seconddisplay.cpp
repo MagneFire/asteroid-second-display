@@ -6,7 +6,7 @@
 
 SecondDisplay::SecondDisplay(QObject *parent) : QObject(parent)
 {
-    display = new org::asteroid::display(SERVICE_NAME, DISPLAY_OBJECT, QDBusConnection::sessionBus(), this);
+    display = new org::asteroid::display(SERVICE_NAME, DISPLAY_OBJECT, QDBusConnection::systemBus(), this);
 }
 
 SecondDisplay::~SecondDisplay()

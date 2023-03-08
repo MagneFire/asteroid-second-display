@@ -31,8 +31,8 @@ int main(int argc, char** argv)
         return 0;
     }
 
-    auto display = new org::asteroid::display(SERVICE_NAME, DISPLAY_OBJECT, QDBusConnection::sessionBus());
-    auto hands = new org::asteroid::hands(SERVICE_NAME, HANDS_OBJECT, QDBusConnection::sessionBus());
+    auto display = new org::asteroid::display(SERVICE_NAME, DISPLAY_OBJECT, QDBusConnection::systemBus());
+    auto hands = new org::asteroid::hands(SERVICE_NAME, HANDS_OBJECT, QDBusConnection::systemBus());
 
     if (!display->isValid()) {
         qDebug() << "No remote connection! Daemon not active?";

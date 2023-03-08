@@ -6,7 +6,7 @@
 
 Hands::Hands(QObject *parent) : QObject(parent)
 {
-    hands = new org::asteroid::hands(SERVICE_NAME, HANDS_OBJECT, QDBusConnection::sessionBus(), this);
+    hands = new org::asteroid::hands(SERVICE_NAME, HANDS_OBJECT, QDBusConnection::systemBus(), this);
 }
 
 Hands::~Hands()
