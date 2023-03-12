@@ -1,0 +1,9 @@
+[Unit]
+Description=Synchronize second display time
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/asteroid-second-display --sync
+
+[Install]
+WantedBy=basic.target

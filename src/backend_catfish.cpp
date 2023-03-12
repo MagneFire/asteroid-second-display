@@ -121,5 +121,11 @@ int CatfishBackend::EnterTimepieceMode()
 
 int CatfishBackend::SetStepCounter(bool enable)
 {
+    if (m_stepCounterEnabled == enable) return 0;
+
+    m_stepCounterEnabled = enable;
+
+    emit Backend::StepCounterChanged();
+
     return nativeFunctions.enableStepCounter(0, 0, enable);
 }

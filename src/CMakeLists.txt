@@ -34,9 +34,3 @@ target_link_libraries(asteroid-seconddisplayd PRIVATE
 
 install(TARGETS asteroid-seconddisplayd
     DESTINATION ${CMAKE_INSTALL_BINDIR})
-
-install(FILES ../systemd/asteroid-seconddisplayd.service
-    DESTINATION /lib/systemd/system)
-
-install(FILES ../dbus/org.asteroid.SecondDisplay.conf
-    DESTINATION /etc/dbus-1/system.d)

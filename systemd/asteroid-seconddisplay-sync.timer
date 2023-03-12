@@ -1,0 +1,11 @@
+[Unit]
+Description=Sync LCD time
+# Requires=asteroid-seconddisplay-sync.service.service
+
+[Timer]
+# Unit=asteroid-seconddisplay-sync.service.service
+OnClockChange=true
+OnTimezoneChange=true
+
+[Install]
+WantedBy=timers.target

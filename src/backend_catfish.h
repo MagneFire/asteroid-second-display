@@ -15,6 +15,7 @@ class CatfishBackend : public Backend
     virtual bool HasTimepieceMode() { return true; }
     virtual int EnterTimepieceMode();
     virtual bool HasStepCounter() { return true; }
+    virtual bool GetStepCounter() { return m_stepCounterEnabled; };
     virtual int SetStepCounter(bool enable);
 
    private:
@@ -42,6 +43,7 @@ class CatfishBackend : public Backend
     } nativeFunctions_t;
 
     nativeFunctions_t nativeFunctions;
+    bool m_stepCounterEnabled;
 };
 };      // namespace AsteroidOS::SecondDisplayDaemon
 #endif  // BACKEND_CATFISH_H

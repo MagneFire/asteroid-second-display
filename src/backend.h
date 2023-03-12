@@ -9,6 +9,8 @@ namespace AsteroidOS::SecondDisplayDaemon
 
 class Hands : public QObject
 {
+    Q_OBJECT
+    // Q_CLASSINFO("D-Bus Interface", "org.asteroid.hands")
    public:
     Hands(){};
     virtual int HasHands() { return false; };
@@ -20,6 +22,9 @@ class Hands : public QObject
 
 class Backend : public QObject
 {
+    Q_OBJECT
+    // Q_CLASSINFO("D-Bus Interface", "org.asteroid.display")
+    Q_PROPERTY(bool stepCounter READ GetStepCounter WRITE SetStepCounter NOTIFY StepCounterChanged)
    public:
     Backend(){};
     virtual ~Backend(){};
@@ -29,10 +34,14 @@ class Backend : public QObject
     virtual int EnterTimepieceMode() { return 0; };
     virtual bool HasStepCounter() { return false; };
     virtual int SetStepCounter(bool enable) { return 0; };
+    virtual bool GetStepCounter() { return false; };
     virtual int HasHands() { return false; };
     virtual Hands* GetHands() { return &hands; };
 
     static Backend* Get();
+
+signals:
+    void StepCounterChanged();
 
    private:
     static Backend* GetBackend();

@@ -29,8 +29,10 @@ find_package(Mlite5 MODULE REQUIRED)
 find_package(Qt5 5 COMPONENTS DBus Qml Quick REQUIRED)
 pkg_check_modules(LIBHYBRIS REQUIRED hybris-egl-platform libandroid-properties)
 
+add_subdirectory(dbus)
 add_subdirectory(declarative)
 add_subdirectory(src)
+add_subdirectory(systemd)
 add_subdirectory(tools)
 
 feature_summary(WHAT ALL FATAL_ON_MISSING_REQUIRED_PACKAGES)
