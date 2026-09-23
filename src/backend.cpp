@@ -3,6 +3,7 @@
 
 #include "backend.h"
 #include "backend_casio.h"
+#include "backend_narwhal.h"
 
 #ifdef HAVE_HYBRIS
 #include "backend_mobvoi.h"
@@ -18,6 +19,8 @@ std::unique_ptr<Backend> createBackend(const QString &machine)
         return std::make_unique<CasioBackend>(Koi);
     if (machine == "medaka")
         return std::make_unique<CasioBackend>(Medaka);
+    if (machine == "narwhal")
+        return std::make_unique<NarwhalBackend>();
 #ifdef HAVE_HYBRIS
     if (machine == "catfish")
         return std::make_unique<MobvoiBackend>(Catfish);

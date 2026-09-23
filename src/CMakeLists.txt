@@ -7,6 +7,7 @@ set(SRC
     settingsstore.cpp
     login1.cpp
     backend_casio.cpp
+    backend_narwhal.cpp
 )
 set(HEADERS
     backend.h
@@ -17,6 +18,7 @@ set(HEADERS
     settingskeys.h
     login1.h
     backend_casio.h
+    backend_narwhal.h
 )
 set(INCLUDES
     ../dbus/
