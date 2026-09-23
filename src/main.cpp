@@ -12,6 +12,7 @@
 #include "hands.h"
 #include "hands_adaptor.h"
 #include "propertieschangedrelay.h"
+#include "settingsstore.h"
 
 using namespace SecondDisplay;
 
@@ -29,8 +30,9 @@ int main(int argc, char **argv)
 {
     QCoreApplication app(argc, argv);
 
+    const auto settings = createSettingsStore();
     const auto backend = createBackend(machineName());
-    Display display(backend.get());
+    Display display(backend.get(), settings.get());
     Hands hands(backend.get());
     new DisplayAdaptor(&display);
     new HandsAdaptor(&hands);

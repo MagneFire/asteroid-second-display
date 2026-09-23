@@ -13,6 +13,9 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
 
 find_package(Qt6 COMPONENTS Core DBus REQUIRED)
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(MLITE IMPORTED_TARGET mlite6)
+add_feature_info(mlite6 MLITE_FOUND "Keeps settings in dconf; without it they are lost on restart")
 
 add_subdirectory(src)
 add_subdirectory(tools)

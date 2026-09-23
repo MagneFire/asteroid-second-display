@@ -3,13 +3,50 @@
 
 #include "display.h"
 
+#include "settingskeys.h"
+
 namespace SecondDisplay {
 
-Display::Display(Backend *backend, QObject *parent)
+struct Display::Feature
+{
+    bool Display::*enabled;
+    const char *settingsKey;
+    unsigned int capability;
+    bool (Backend::*setEnabled)(bool);
+    void (Display::*enabledChanged)();
+};
+
+const Display::Feature Display::StepCounter{&Display::m_stepCounterEnabled, SettingsKey::StepCounter,
+                                            Capability::StepCounter, &Backend::setStepCounterEnabled,
+                                            &Display::stepCounterEnabledChanged};
+const Display::Feature Display::HeartRate{&Display::m_heartRateEnabled, SettingsKey::HeartRate, Capability::HeartRate,
+                                          &Backend::setHeartRateEnabled, &Display::heartRateEnabledChanged};
+const Display::Feature Display::Motion{&Display::m_motionEnabled, SettingsKey::Motion, Capability::Motion,
+                                       &Backend::setMotionEnabled, &Display::motionEnabledChanged};
+
+Display::Display(Backend *backend, SettingsStore *settings, QObject *parent)
     : QObject(parent)
     , m_backend(backend)
+    , m_settings(settings)
 {
     connect(m_backend, &Backend::capabilitiesChanged, this, &Display::capabilitiesChanged);
+    connect(m_backend, &Backend::capabilitiesChanged, this, &Display::applyStoredSettings);
+    applyStoredSettings();
+}
+
+void Display::applyStoredSettings()
+{
+    for (const Feature *feature : {&StepCounter, &HeartRate, &Motion}) {
+        const QVariant stored = m_settings->value(feature->settingsKey);
+        if (stored.isValid())
+            applyFeature(*feature, stored.toBool());
+    }
+
+    const QVariant storedColor = m_settings->value(SettingsKey::DisplayColor);
+    if (storedColor.isValid())
+        applyBackground(static_cast<Background>(storedColor.toInt()));
+
+    SynchronizeTime();
 }
 
 uint Display::capabilities() const
@@ -22,11 +59,33 @@ bool Display::supports(unsigned int capability) const
     return capabilities() & capability;
 }
 
-bool Display::applyFeature(bool &currentlyEnabled, bool enabled, unsigned int capability, bool (Backend::*setEnabled)(bool))
+bool Display::applyFeature(const Feature &feature, bool enabled)
 {
-    if (currentlyEnabled == enabled || !supports(capability) || !(m_backend->*setEnabled)(enabled))
+    if (!supports(feature.capability) || !(m_backend->*feature.setEnabled)(enabled))
         return false;
-    currentlyEnabled = enabled;
+    if (this->*feature.enabled != enabled) {
+        this->*feature.enabled = enabled;
+        emit(this->*feature.enabledChanged)();
+    }
+    return true;
+}
+
+void Display::setFeatureEnabled(const Feature &feature, bool enabled)
+{
+    if (applyFeature(feature, enabled))
+        m_settings->setValue(feature.settingsKey, enabled);
+}
+
+bool Display::applyBackground(Background background)
+{
+    if (background != Background::Black && background != Background::White)
+        return false;
+    if (!supports(Capability::DisplayColor) || !m_backend->setBackground(background))
+        return false;
+    if (background != m_background) {
+        m_background = background;
+        emit displayColorChanged();
+    }
     return true;
 }
 
@@ -37,8 +96,7 @@ bool Display::stepCounterEnabled() const
 
 void Display::setStepCounterEnabled(bool enabled)
 {
-    if (applyFeature(m_stepCounterEnabled, enabled, Capability::StepCounter, &Backend::setStepCounterEnabled))
-        emit stepCounterEnabledChanged();
+    setFeatureEnabled(StepCounter, enabled);
 }
 
 bool Display::heartRateEnabled() const
@@ -48,8 +106,7 @@ bool Display::heartRateEnabled() const
 
 void Display::setHeartRateEnabled(bool enabled)
 {
-    if (applyFeature(m_heartRateEnabled, enabled, Capability::HeartRate, &Backend::setHeartRateEnabled))
-        emit heartRateEnabledChanged();
+    setFeatureEnabled(HeartRate, enabled);
 }
 
 bool Display::motionEnabled() const
@@ -59,8 +116,7 @@ bool Display::motionEnabled() const
 
 void Display::setMotionEnabled(bool enabled)
 {
-    if (applyFeature(m_motionEnabled, enabled, Capability::Motion, &Backend::setMotionEnabled))
-        emit motionEnabledChanged();
+    setFeatureEnabled(Motion, enabled);
 }
 
 int Display::displayColor() const
@@ -70,13 +126,8 @@ int Display::displayColor() const
 
 void Display::setDisplayColor(int color)
 {
-    const auto background = static_cast<Background>(color);
-    if (background != Background::Black && background != Background::White)
-        return;
-    if (background == m_background || !supports(Capability::DisplayColor) || !m_backend->setBackground(background))
-        return;
-    m_background = background;
-    emit displayColorChanged();
+    if (applyBackground(static_cast<Background>(color)))
+        m_settings->setValue(SettingsKey::DisplayColor, color);
 }
 
 bool Display::SynchronizeTime()

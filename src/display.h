@@ -7,6 +7,7 @@
 #include <QObject>
 
 #include "backend.h"
+#include "settingsstore.h"
 
 namespace SecondDisplay {
 
@@ -20,7 +21,7 @@ class Display : public QObject
     Q_PROPERTY(int DisplayColor READ displayColor WRITE setDisplayColor NOTIFY displayColorChanged)
 
 public:
-    explicit Display(Backend *backend, QObject *parent = nullptr);
+    Display(Backend *backend, SettingsStore *settings, QObject *parent = nullptr);
 
     uint capabilities() const;
 
@@ -45,10 +46,19 @@ signals:
     void displayColorChanged();
 
 private:
+    struct Feature;
+    static const Feature StepCounter;
+    static const Feature HeartRate;
+    static const Feature Motion;
+
     bool supports(unsigned int capability) const;
-    bool applyFeature(bool &currentlyEnabled, bool enabled, unsigned int capability, bool (Backend::*setEnabled)(bool));
+    bool applyFeature(const Feature &feature, bool enabled);
+    void setFeatureEnabled(const Feature &feature, bool enabled);
+    bool applyBackground(Background background);
+    void applyStoredSettings();
 
     Backend *m_backend;
+    SettingsStore *m_settings;
     bool m_stepCounterEnabled = false;
     bool m_heartRateEnabled = false;
     bool m_motionEnabled = false;
