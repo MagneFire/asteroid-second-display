@@ -3,11 +3,13 @@ set(SRC
     backend.cpp
     display.cpp
     hands.cpp
+    propertieschangedrelay.cpp
 )
 set(HEADERS
     backend.h
     display.h
     hands.h
+    propertieschangedrelay.h
 )
 set(INCLUDES
     ../dbus/

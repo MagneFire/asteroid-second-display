@@ -11,6 +11,7 @@
 #include "display_adaptor.h"
 #include "hands.h"
 #include "hands_adaptor.h"
+#include "propertieschangedrelay.h"
 
 using namespace SecondDisplay;
 
@@ -35,6 +36,9 @@ int main(int argc, char **argv)
     new HandsAdaptor(&hands);
 
     QDBusConnection bus = QDBusConnection::sessionBus();
+    new PropertiesChangedRelay(&display, DisplayPath, DisplayInterface, bus);
+    new PropertiesChangedRelay(&hands, HandsPath, HandsInterface, bus);
+
     if (!bus.registerObject(DisplayPath, &display) || !bus.registerObject(HandsPath, &hands)) {
         qCritical() << "Unable to register objects:" << bus.lastError().message();
         return 1;
