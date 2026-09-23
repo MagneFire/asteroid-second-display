@@ -43,6 +43,12 @@ add_executable(asteroid-seconddisplayd ${SRC} ${HEADERS})
 target_link_libraries(asteroid-seconddisplayd PRIVATE
 	Qt6::DBus)
 
+if(HYBRIS_FOUND)
+	target_sources(asteroid-seconddisplayd PRIVATE backend_mobvoi.cpp)
+	target_compile_definitions(asteroid-seconddisplayd PRIVATE HAVE_HYBRIS)
+	target_link_libraries(asteroid-seconddisplayd PRIVATE PkgConfig::HYBRIS)
+endif()
+
 if(MLITE_FOUND)
 	target_sources(asteroid-seconddisplayd PRIVATE dconfsettingsstore.cpp)
 	target_compile_definitions(asteroid-seconddisplayd PRIVATE HAVE_MLITE)

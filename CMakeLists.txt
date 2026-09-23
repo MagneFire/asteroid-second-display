@@ -15,6 +15,8 @@ set(CMAKE_AUTOMOC ON)
 find_package(Qt6 COMPONENTS Core DBus REQUIRED)
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(MLITE IMPORTED_TARGET mlite6)
+pkg_check_modules(HYBRIS IMPORTED_TARGET hybris-egl-platform libandroid-properties)
+add_feature_info(libhybris HYBRIS_FOUND "Backend for catfish and rubyfish")
 add_feature_info(mlite6 MLITE_FOUND "Keeps settings in dconf; without it they are lost on restart")
 
 add_subdirectory(src)
