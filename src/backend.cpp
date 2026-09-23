@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2023 Darrel Griët <dgriet@gmail.com>
+// SPDX-License-Identifier: GPL-3.0-only
+
 #include "backend.h"
 #include "backend_catfish.h"
 
