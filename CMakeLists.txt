@@ -19,7 +19,9 @@ pkg_check_modules(HYBRIS IMPORTED_TARGET hybris-egl-platform libandroid-properti
 add_feature_info(libhybris HYBRIS_FOUND "Backend for catfish and rubyfish")
 add_feature_info(mlite6 MLITE_FOUND "Keeps settings in dconf; without it they are lost on restart")
 
+add_subdirectory(dbus)
 add_subdirectory(src)
+add_subdirectory(systemd)
 add_subdirectory(tools)
 
 feature_summary(WHAT ALL FATAL_ON_MISSING_REQUIRED_PACKAGES)

@@ -1,0 +1,7 @@
+# SPDX-FileCopyrightText: 2026 Darrel Griët <dgriet@gmail.com>
+# SPDX-License-Identifier: GPL-3.0-only
+
+[D-BUS Service]
+Name=org.asteroid.SecondDisplay
+Exec=@CMAKE_INSTALL_FULL_BINDIR@/asteroid-seconddisplayd
+SystemdService=asteroid-seconddisplayd.service

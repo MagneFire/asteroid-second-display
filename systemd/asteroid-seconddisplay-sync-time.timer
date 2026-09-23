@@ -1,0 +1,14 @@
+# SPDX-FileCopyrightText: 2022 Cristian Le <github@lecris.me>
+# SPDX-FileCopyrightText: 2026 Darrel Griët <dgriet@gmail.com>
+# SPDX-License-Identifier: GPL-3.0-only
+
+[Unit]
+Description=Sync the second display time on clock and time zone changes
+
+[Timer]
+Unit=asteroid-seconddisplay-sync-time.service
+OnClockChange=true
+OnTimezoneChange=true
+
+[Install]
+WantedBy=timers.target
