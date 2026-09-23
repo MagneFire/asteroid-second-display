@@ -20,6 +20,9 @@ public:
 
     virtual QVariant value(const QString &key) const = 0;
     virtual void setValue(const QString &key, const QVariant &value) = 0;
+
+signals:
+    void valueChanged(const QString &key);
 };
 
 class MemorySettingsStore : public SettingsStore

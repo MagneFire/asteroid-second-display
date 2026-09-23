@@ -31,6 +31,10 @@ Display::Display(Backend *backend, SettingsStore *settings, QObject *parent)
 {
     connect(m_backend, &Backend::capabilitiesChanged, this, &Display::capabilitiesChanged);
     connect(m_backend, &Backend::capabilitiesChanged, this, &Display::applyStoredSettings);
+    connect(m_settings, &SettingsStore::valueChanged, this, [this](const QString &key) {
+        if (key == QLatin1String(SettingsKey::Use12HourFormat))
+            SynchronizeTime();
+    });
     applyStoredSettings();
 }
 
@@ -132,7 +136,9 @@ void Display::setDisplayColor(int color)
 
 bool Display::SynchronizeTime()
 {
-    return supports(Capability::TimeSync) && m_backend->synchronizeTime(TimeFormat::TwentyFourHour);
+    const bool twelveHour = m_settings->value(SettingsKey::Use12HourFormat).toBool();
+    return supports(Capability::TimeSync)
+        && m_backend->synchronizeTime(twelveHour ? TimeFormat::TwelveHour : TimeFormat::TwentyFourHour);
 }
 
 bool Display::EnterTimepieceMode(bool)

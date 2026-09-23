@@ -16,7 +16,10 @@ QVariant MemorySettingsStore::value(const QString &key) const
 
 void MemorySettingsStore::setValue(const QString &key, const QVariant &value)
 {
+    if (m_values.value(key) == value)
+        return;
     m_values.insert(key, value);
+    emit valueChanged(key);
 }
 
 std::unique_ptr<SettingsStore> createSettingsStore()
