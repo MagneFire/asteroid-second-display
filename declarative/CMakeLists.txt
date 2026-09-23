@@ -24,12 +24,12 @@ qt_add_dbus_interface(SRC
 
 include_directories(${INCLUDES})
 
-add_library(asteroidseconddisplaysplugin ${SRC} ${HEADERS})
+add_library(asteroidseconddisplaysplugin MODULE ${SRC} ${HEADERS})
 
 target_link_libraries(asteroidseconddisplaysplugin
-	Qt5::DBus
-	Qt5::Qml
-	Qt5::Quick)
+	Qt6::DBus
+	Qt6::Qml
+	Qt6::Quick)
 
 install(TARGETS asteroidseconddisplaysplugin
 	DESTINATION ${INSTALL_QML_IMPORT_DIR}/org/asteroid/seconddisplay)
