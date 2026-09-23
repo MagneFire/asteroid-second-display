@@ -12,11 +12,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
 
-set(INSTALL_QML_IMPORT_DIR "${CMAKE_INSTALL_FULL_LIBDIR}/qml")
-
 find_package(Qt6 COMPONENTS Core DBus Qml Quick REQUIRED)
 
-add_subdirectory(declarative)
 add_subdirectory(src)
 add_subdirectory(tools)
 
