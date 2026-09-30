@@ -7,7 +7,7 @@
 #include <QObject>
 #include <QDebug>
 
-namespace AsteroidOS::SecondDisplayDaemon
+namespace SecondDisplay
 {
 
 class Hands : public QObject
@@ -43,5 +43,5 @@ class Backend : public QObject
     Hands hands;
     bool state;
 };
-};      // namespace AsteroidOS::SecondDisplayDaemon
+};      // namespace SecondDisplay
 #endif  // BACKEND_H

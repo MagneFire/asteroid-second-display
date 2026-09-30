@@ -12,14 +12,14 @@ set(INCLUDES
 qt_add_dbus_adaptor(SRC
     ../dbus/org.aos.display.xml
     backend.h
-    AsteroidOS::SecondDisplayDaemon::Backend
+    SecondDisplay::Backend
     display_adaptor
 )
 
 qt_add_dbus_adaptor(SRC
     ../dbus/org.aos.hands.xml
     backend.h
-    AsteroidOS::SecondDisplayDaemon::Hands
+    SecondDisplay::Hands
     hands_adaptor
 )
 
