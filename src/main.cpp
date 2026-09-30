@@ -25,9 +25,14 @@ int main(int argc, char** argv)
     new DisplayAdaptor(backend);
     new HandsAdaptor(hands);
     QDBusConnection connection = QDBusConnection::sessionBus();
-    connection.registerObject(DISPLAY_OBJECT, backend);
-    connection.registerObject(HANDS_OBJECT, hands);
-    connection.registerService(SERVICE_NAME);
+    if (!connection.registerObject(DISPLAY_OBJECT, backend) || !connection.registerObject(HANDS_OBJECT, hands)) {
+        qCritical() << "Unable to register objects:" << connection.lastError().message();
+        return 1;
+    }
+    if (!connection.registerService(SERVICE_NAME)) {
+        qCritical() << "Unable to register" << SERVICE_NAME << ":" << connection.lastError().message();
+        return 1;
+    }
 
     return app.exec();
 }
