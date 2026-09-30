@@ -31,6 +31,8 @@ public:
     virtual bool setHeartRateEnabled(bool) { return false; }
     virtual bool setMotionEnabled(bool) { return false; }
     virtual bool setBackground(Background) { return false; }
+    virtual bool setAodOffloadEnabled(bool) { return false; }
+    virtual void displayStateChanged(const QString &) {}
 
     virtual bool watchMode() const { return false; }
     virtual unsigned int handResolution() const { return 0; }

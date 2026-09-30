@@ -10,6 +10,7 @@ inline constexpr char StepCounter[] = "/org/asteroidos/second-display/step-count
 inline constexpr char HeartRate[] = "/org/asteroidos/second-display/heart-rate";
 inline constexpr char Motion[] = "/org/asteroidos/second-display/motion";
 inline constexpr char DisplayColor[] = "/org/asteroidos/second-display/display-color";
+inline constexpr char AodOffload[] = "/org/asteroidos/second-display/aod-offload";
 inline constexpr char Use12HourFormat[] = "/org/asteroidos/settings/use-12h-format";
 
 }
