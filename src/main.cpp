@@ -1,11 +1,10 @@
-// SPDX-FileCopyrightText: 2023 Darrel Griët <dgriet@gmail.com>
+// SPDX-FileCopyrightText: 2023-2026 Darrel Griët <dgriet@gmail.com>
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <stdio.h>
-#include <stdlib.h>
-
-#include <QtCore/QCoreApplication>
-#include <QtDBus/QtDBus>
+#include <QCoreApplication>
+#include <QDBusConnection>
+#include <QDebug>
+#include <QSettings>
 
 #include "backend.h"
 #include "dbus.h"
@@ -14,23 +13,32 @@
 
 using namespace SecondDisplay;
 
-int main(int argc, char** argv)
+namespace {
+
+QString machineName()
+{
+    const QSettings machineConfig("/etc/asteroid/machine.conf", QSettings::IniFormat);
+    return machineConfig.value("Identity/MACHINE", "unknown").toString();
+}
+
+}
+
+int main(int argc, char **argv)
 {
     QCoreApplication app(argc, argv);
 
-    // Initialize the backend.
-    Backend* backend = Backend::Get();
-    Hands* hands = backend->GetHands();
-
-    new DisplayAdaptor(backend);
+    const auto backend = createBackend(machineName());
+    Hands *hands = backend->GetHands();
+    new DisplayAdaptor(backend.get());
     new HandsAdaptor(hands);
-    QDBusConnection connection = QDBusConnection::sessionBus();
-    if (!connection.registerObject(DISPLAY_OBJECT, backend) || !connection.registerObject(HANDS_OBJECT, hands)) {
-        qCritical() << "Unable to register objects:" << connection.lastError().message();
+
+    QDBusConnection bus = QDBusConnection::sessionBus();
+    if (!bus.registerObject(DISPLAY_OBJECT, backend.get()) || !bus.registerObject(HANDS_OBJECT, hands)) {
+        qCritical() << "Unable to register objects:" << bus.lastError().message();
         return 1;
     }
-    if (!connection.registerService(SERVICE_NAME)) {
-        qCritical() << "Unable to register" << SERVICE_NAME << ":" << connection.lastError().message();
+    if (!bus.registerService(SERVICE_NAME)) {
+        qCritical() << "Unable to register" << SERVICE_NAME << ":" << bus.lastError().message();
         return 1;
     }
 

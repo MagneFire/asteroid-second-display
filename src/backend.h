@@ -1,14 +1,13 @@
-// SPDX-FileCopyrightText: 2023 Darrel Griët <dgriet@gmail.com>
+// SPDX-FileCopyrightText: 2023-2026 Darrel Griët <dgriet@gmail.com>
 // SPDX-License-Identifier: GPL-3.0-only
 
 #ifndef BACKEND_H
 #define BACKEND_H
 
 #include <QObject>
-#include <QDebug>
+#include <memory>
 
-namespace SecondDisplay
-{
+namespace SecondDisplay {
 
 class Hands : public QObject
 {
@@ -23,9 +22,11 @@ class Hands : public QObject
 
 class Backend : public QObject
 {
-   public:
-    Backend(){};
-    virtual ~Backend(){};
+    Q_OBJECT
+
+public:
+    using QObject::QObject;
+
     virtual bool HasSecondDisplay() { return false; };
     virtual int SynchronizeTime() { return 0; };
     virtual bool HasTimepieceMode() { return false; };
@@ -35,13 +36,12 @@ class Backend : public QObject
     virtual int HasHands() { return false; };
     virtual Hands* GetHands() { return &hands; };
 
-    static Backend* Get();
-
-   private:
-    static Backend* GetBackend();
-    static Backend* instance;
+private:
     Hands hands;
-    bool state;
 };
-};      // namespace SecondDisplay
-#endif  // BACKEND_H
+
+std::unique_ptr<Backend> createBackend(const QString &machine);
+
+}
+
+#endif
