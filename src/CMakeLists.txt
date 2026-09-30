@@ -5,6 +5,7 @@ set(SRC
     hands.cpp
     propertieschangedrelay.cpp
     settingsstore.cpp
+    login1.cpp
 )
 set(HEADERS
     backend.h
@@ -13,6 +14,7 @@ set(HEADERS
     propertieschangedrelay.h
     settingsstore.h
     settingskeys.h
+    login1.h
 )
 set(INCLUDES
     ../dbus/

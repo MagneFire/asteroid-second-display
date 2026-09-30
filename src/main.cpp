@@ -11,6 +11,7 @@
 #include "display_adaptor.h"
 #include "hands.h"
 #include "hands_adaptor.h"
+#include "login1.h"
 #include "propertieschangedrelay.h"
 #include "settingsstore.h"
 
@@ -32,7 +33,7 @@ int main(int argc, char **argv)
 
     const auto settings = createSettingsStore();
     const auto backend = createBackend(machineName());
-    Display display(backend.get(), settings.get());
+    Display display(backend.get(), settings.get(), requestPowerOff);
     Hands hands(backend.get());
     new DisplayAdaptor(&display);
     new HandsAdaptor(&hands);

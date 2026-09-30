@@ -5,6 +5,7 @@
 #define DISPLAY_H
 
 #include <QObject>
+#include <functional>
 
 #include "backend.h"
 #include "settingsstore.h"
@@ -21,7 +22,9 @@ class Display : public QObject
     Q_PROPERTY(int DisplayColor READ displayColor WRITE setDisplayColor NOTIFY displayColorChanged)
 
 public:
-    Display(Backend *backend, SettingsStore *settings, QObject *parent = nullptr);
+    using PowerOff = std::function<bool()>;
+
+    Display(Backend *backend, SettingsStore *settings, PowerOff powerOff, QObject *parent = nullptr);
 
     uint capabilities() const;
 
@@ -59,6 +62,7 @@ private:
 
     Backend *m_backend;
     SettingsStore *m_settings;
+    PowerOff m_powerOff;
     bool m_stepCounterEnabled = false;
     bool m_heartRateEnabled = false;
     bool m_motionEnabled = false;

@@ -24,10 +24,11 @@ const Display::Feature Display::HeartRate{&Display::m_heartRateEnabled, Settings
 const Display::Feature Display::Motion{&Display::m_motionEnabled, SettingsKey::Motion, Capability::Motion,
                                        &Backend::setMotionEnabled, &Display::motionEnabledChanged};
 
-Display::Display(Backend *backend, SettingsStore *settings, QObject *parent)
+Display::Display(Backend *backend, SettingsStore *settings, PowerOff powerOff, QObject *parent)
     : QObject(parent)
     , m_backend(backend)
     , m_settings(settings)
+    , m_powerOff(std::move(powerOff))
 {
     connect(m_backend, &Backend::capabilitiesChanged, this, &Display::capabilitiesChanged);
     connect(m_backend, &Backend::capabilitiesChanged, this, &Display::applyStoredSettings);
@@ -141,9 +142,9 @@ bool Display::SynchronizeTime()
         && m_backend->synchronizeTime(twelveHour ? TimeFormat::TwelveHour : TimeFormat::TwentyFourHour);
 }
 
-bool Display::EnterTimepieceMode(bool)
+bool Display::EnterTimepieceMode(bool powerOff)
 {
-    return supports(Capability::TimepieceMode) && m_backend->prepareTimepiece();
+    return supports(Capability::TimepieceMode) && m_backend->prepareTimepiece() && (!powerOff || m_powerOff());
 }
 
 }
