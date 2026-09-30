@@ -2,8 +2,13 @@
 <node>
   <interface name="org.asteroid.SecondDisplay.Hands">
     <property name="WatchMode" type="b" access="read"/>
+    <property name="Resolution" type="u" access="read"/>
     <method name="ResumeWatchMode">
       <arg name="ok" type="b" direction="out"/>
+    </method>
+    <method name="GetPositions">
+      <arg name="positions" type="ai" direction="out"/>
+      <annotation name="org.qtproject.QtDBus.QtTypeName.Out0" value="QList&lt;int&gt;"/>
     </method>
     <method name="MoveHand">
       <arg name="hand" type="i" direction="in"/>

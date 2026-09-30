@@ -32,7 +32,9 @@ public:
     virtual bool setBackground(Background) { return false; }
 
     virtual bool watchMode() const { return false; }
+    virtual unsigned int handResolution() const { return 0; }
     virtual bool resumeWatchMode() { return false; }
+    virtual QList<int> handPositions() const { return {}; }
     virtual bool moveHand(Hand, int) { return false; }
     virtual bool moveAllHands(const QList<int> &) { return false; }
     virtual bool calibrateHand(Hand, Rotation, int) { return false; }
