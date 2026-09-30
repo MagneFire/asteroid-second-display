@@ -7,9 +7,9 @@
 #include <QSettings>
 
 #include "backend.h"
+#include "display.h"
 #include "display_adaptor.h"
 #include "hands_adaptor.h"
-#include "types.h"
 
 using namespace SecondDisplay;
 
@@ -28,12 +28,13 @@ int main(int argc, char **argv)
     QCoreApplication app(argc, argv);
 
     const auto backend = createBackend(machineName());
+    Display display(backend.get());
     Hands *hands = backend->GetHands();
-    new DisplayAdaptor(backend.get());
+    new DisplayAdaptor(&display);
     new HandsAdaptor(hands);
 
     QDBusConnection bus = QDBusConnection::sessionBus();
-    if (!bus.registerObject(DisplayPath, backend.get()) || !bus.registerObject(HandsPath, hands)) {
+    if (!bus.registerObject(DisplayPath, &display) || !bus.registerObject(HandsPath, hands)) {
         qCritical() << "Unable to register objects:" << bus.lastError().message();
         return 1;
     }

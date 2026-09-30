@@ -1,27 +1,14 @@
 <!DOCTYPE node PUBLIC "-//freedesktop//DTD D-BUS Object Introspection 1.0//EN" "http://www.freedesktop.org/standards/dbus/1.0/introspect.dtd">
 <node>
   <interface name="org.asteroid.SecondDisplay.Display">
-    <method name="HasSecondDisplay">
-      <arg type="b" direction="out"/>
-    </method>
+    <property name="Capabilities" type="u" access="read"/>
+    <property name="StepCounterEnabled" type="b" access="readwrite"/>
     <method name="SynchronizeTime">
-      <arg type="i" direction="out"/>
-    </method>
-    <method name="HasTimepieceMode">
-      <arg type="b" direction="out"/>
+      <arg name="ok" type="b" direction="out"/>
     </method>
     <method name="EnterTimepieceMode">
-      <arg type="i" direction="out"/>
-    </method>
-    <method name="HasStepCounter">
-      <arg type="b" direction="out"/>
-    </method>
-    <method name="SetStepCounter">
-      <arg type="i" direction="out"/>
-      <arg name="enable" type="b" direction="in"/>
-    </method>
-    <method name="HasHands">
-      <arg type="i" direction="out"/>
+      <arg name="powerOff" type="b" direction="in"/>
+      <arg name="ok" type="b" direction="out"/>
     </method>
   </interface>
 </node>

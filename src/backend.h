@@ -7,7 +7,11 @@
 #include <QObject>
 #include <memory>
 
+#include "types.h"
+
 namespace SecondDisplay {
+
+enum class TimeFormat { TwentyFourHour, TwelveHour };
 
 class Hands : public QObject
 {
@@ -27,14 +31,17 @@ class Backend : public QObject
 public:
     using QObject::QObject;
 
-    virtual bool HasSecondDisplay() { return false; };
-    virtual int SynchronizeTime() { return 0; };
-    virtual bool HasTimepieceMode() { return false; };
-    virtual int EnterTimepieceMode() { return 0; };
-    virtual bool HasStepCounter() { return false; };
-    virtual int SetStepCounter(bool enable) { return 0; };
-    virtual int HasHands() { return false; };
+    virtual unsigned int capabilities() const { return 0; }
+
+    virtual bool synchronizeTime(TimeFormat) { return false; }
+    virtual bool prepareTimepiece() { return false; }
+
+    virtual bool setStepCounterEnabled(bool) { return false; }
+
     virtual Hands* GetHands() { return &hands; };
+
+signals:
+    void capabilitiesChanged();
 
 private:
     Hands hands;

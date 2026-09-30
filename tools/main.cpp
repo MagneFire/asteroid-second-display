@@ -48,7 +48,7 @@ int main(int argc, char** argv)
         return false;
     }
 
-    if (!display->HasSecondDisplay()) {
+    if (!display->capabilities()) {
         qCritical() << "This device does not support second display functionalities.";
     }
 
@@ -56,13 +56,13 @@ int main(int argc, char** argv)
         display->SynchronizeTime().waitForFinished();
     }
     if (parser.isSet(enterTimepiece)) {
-        display->EnterTimepieceMode().waitForFinished();
+        display->EnterTimepieceMode(false).waitForFinished();
     }
 
     if (parser.isSet(enableStepCounter)) {
-        display->SetStepCounter(true).waitForFinished();
+        display->setStepCounterEnabled(true);
     }
     if (parser.isSet(disableStepCounter)) {
-        display->SetStepCounter(false).waitForFinished();
+        display->setStepCounterEnabled(false);
     }
 }
