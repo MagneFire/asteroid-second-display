@@ -1,11 +1,9 @@
 set(SRC
 	main.cpp
     backend.cpp
-    backend_catfish.cpp
 )
 set(HEADERS
     backend.h
-    backend_catfish.h
 )
 set(INCLUDES
     ../dbus/
