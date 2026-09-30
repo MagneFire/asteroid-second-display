@@ -9,6 +9,7 @@
 #include "backend.h"
 #include "display.h"
 #include "display_adaptor.h"
+#include "hands.h"
 #include "hands_adaptor.h"
 
 using namespace SecondDisplay;
@@ -29,12 +30,12 @@ int main(int argc, char **argv)
 
     const auto backend = createBackend(machineName());
     Display display(backend.get());
-    Hands *hands = backend->GetHands();
+    Hands hands(backend.get());
     new DisplayAdaptor(&display);
-    new HandsAdaptor(hands);
+    new HandsAdaptor(&hands);
 
     QDBusConnection bus = QDBusConnection::sessionBus();
-    if (!bus.registerObject(DisplayPath, &display) || !bus.registerObject(HandsPath, hands)) {
+    if (!bus.registerObject(DisplayPath, &display) || !bus.registerObject(HandsPath, &hands)) {
         qCritical() << "Unable to register objects:" << bus.lastError().message();
         return 1;
     }

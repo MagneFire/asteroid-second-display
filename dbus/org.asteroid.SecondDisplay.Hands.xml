@@ -1,26 +1,25 @@
 <!DOCTYPE node PUBLIC "-//freedesktop//DTD D-BUS Object Introspection 1.0//EN" "http://www.freedesktop.org/standards/dbus/1.0/introspect.dtd">
 <node>
   <interface name="org.asteroid.SecondDisplay.Hands">
-    <method name="HasHands">
-      <arg type="b" direction="out"/>
+    <property name="WatchMode" type="b" access="read"/>
+    <method name="ResumeWatchMode">
+      <arg name="ok" type="b" direction="out"/>
     </method>
-    <method name="SetWatchMode">
-      <arg type="i" direction="out"/>
-      <arg name="enable" type="b" direction="in"/>
-    </method>
-    <method name="MoveHands">
-      <arg type="i" direction="out"/>
-      <arg type="i" direction="in"/>
-      <arg type="i" direction="in"/>
+    <method name="MoveHand">
+      <arg name="hand" type="i" direction="in"/>
+      <arg name="position" type="i" direction="in"/>
+      <arg name="ok" type="b" direction="out"/>
     </method>
     <method name="MoveAllHands">
-      <arg type="i" direction="out"/>
-      <arg type="i" direction="in"/>
+      <arg name="positions" type="ai" direction="in"/>
+      <annotation name="org.qtproject.QtDBus.QtTypeName.In0" value="QList&lt;int&gt;"/>
+      <arg name="ok" type="b" direction="out"/>
     </method>
     <method name="Calibrate">
-      <arg type="i" direction="out"/>
-      <arg type="i" direction="in"/>
-      <arg type="i" direction="in"/>
+      <arg name="hand" type="i" direction="in"/>
+      <arg name="rotation" type="i" direction="in"/>
+      <arg name="steps" type="i" direction="in"/>
+      <arg name="ok" type="b" direction="out"/>
     </method>
   </interface>
 </node>

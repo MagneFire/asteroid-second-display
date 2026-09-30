@@ -2,10 +2,12 @@ set(SRC
 	main.cpp
     backend.cpp
     display.cpp
+    hands.cpp
 )
 set(HEADERS
     backend.h
     display.h
+    hands.h
 )
 set(INCLUDES
     ../dbus/
@@ -20,7 +22,7 @@ qt_add_dbus_adaptor(SRC
 
 qt_add_dbus_adaptor(SRC
     ../dbus/org.asteroid.SecondDisplay.Hands.xml
-    backend.h
+    hands.h
     SecondDisplay::Hands
     hands_adaptor
 )

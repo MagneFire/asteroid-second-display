@@ -4,6 +4,7 @@
 #ifndef BACKEND_H
 #define BACKEND_H
 
+#include <QList>
 #include <QObject>
 #include <memory>
 
@@ -12,17 +13,6 @@
 namespace SecondDisplay {
 
 enum class TimeFormat { TwentyFourHour, TwelveHour };
-
-class Hands : public QObject
-{
-   public:
-    Hands(){};
-    virtual int HasHands() { return false; };
-    virtual int SetWatchMode(bool enable) { return false; };
-    virtual int MoveHands(int, int) { return false; };
-    virtual int MoveAllHands(int) { return false; };
-    virtual int Calibrate(int, int) { return false; };
-};
 
 class Backend : public QObject
 {
@@ -41,13 +31,15 @@ public:
     virtual bool setMotionEnabled(bool) { return false; }
     virtual bool setBackground(Background) { return false; }
 
-    virtual Hands* GetHands() { return &hands; };
+    virtual bool watchMode() const { return false; }
+    virtual bool resumeWatchMode() { return false; }
+    virtual bool moveHand(Hand, int) { return false; }
+    virtual bool moveAllHands(const QList<int> &) { return false; }
+    virtual bool calibrateHand(Hand, Rotation, int) { return false; }
 
 signals:
     void capabilitiesChanged();
-
-private:
-    Hands hands;
+    void watchModeChanged();
 };
 
 std::unique_ptr<Backend> createBackend(const QString &machine);

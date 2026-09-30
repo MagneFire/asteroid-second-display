@@ -25,6 +25,8 @@ enum : unsigned int {
 }
 
 enum class Background : int { Black = 0, White = 1 };
+enum class Hand : int { Minute = 0, Hour = 1 };
+enum class Rotation : int { Clockwise = 0, CounterClockwise = 1 };
 
 }
 
