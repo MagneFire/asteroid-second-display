@@ -1,6 +1,6 @@
 <!DOCTYPE node PUBLIC "-//freedesktop//DTD D-BUS Object Introspection 1.0//EN" "http://www.freedesktop.org/standards/dbus/1.0/introspect.dtd">
 <node>
-  <interface name="org.asteroid.display">
+  <interface name="org.asteroid.SecondDisplay.Display">
     <method name="HasSecondDisplay">
       <arg type="b" direction="out"/>
     </method>

@@ -1,13 +1,15 @@
 // SPDX-FileCopyrightText: 2023 Darrel Griët <dgriet@gmail.com>
 // SPDX-License-Identifier: GPL-3.0-only
 
-
-#include <QObject>
+#include <QCommandLineParser>
+#include <QCoreApplication>
 
 #include "display_interface.h"
 #include "hands_interface.h"
 
-#include "dbus.h"
+#include "types.h"
+
+using namespace SecondDisplay;
 
 int main(int argc, char** argv)
 {
@@ -34,8 +36,8 @@ int main(int argc, char** argv)
         return 0;
     }
 
-    auto display = new org::asteroid::display(SERVICE_NAME, DISPLAY_OBJECT, QDBusConnection::sessionBus());
-    auto hands = new org::asteroid::hands(SERVICE_NAME, HANDS_OBJECT, QDBusConnection::sessionBus());
+    auto display = new org::asteroid::SecondDisplay::Display(ServiceName, DisplayPath, QDBusConnection::sessionBus());
+    auto hands = new org::asteroid::SecondDisplay::Hands(ServiceName, HandsPath, QDBusConnection::sessionBus());
 
     if (!display->isValid()) {
         qDebug() << "No remote connection! Daemon not active?";

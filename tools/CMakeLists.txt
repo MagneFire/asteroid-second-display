@@ -8,12 +8,12 @@ set(INCLUDES
 )
 
 qt_add_dbus_interface(SRC
-    ../dbus/org.aos.display.xml
+    ../dbus/org.asteroid.SecondDisplay.Display.xml
     display_interface
 )
 
 qt_add_dbus_interface(SRC
-    ../dbus/org.aos.hands.xml
+    ../dbus/org.asteroid.SecondDisplay.Hands.xml
     hands_interface
 )
 
