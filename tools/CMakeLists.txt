@@ -22,6 +22,4 @@ include_directories(${INCLUDES})
 add_executable(asteroid-second-display ${SRC} ${HEADERS})
 
 target_link_libraries(asteroid-second-display
-    Qt6::DBus
-    Qt6::Qml
-    Qt6::Quick)
+    Qt6::DBus)
