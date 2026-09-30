@@ -37,6 +37,9 @@ public:
     virtual bool prepareTimepiece() { return false; }
 
     virtual bool setStepCounterEnabled(bool) { return false; }
+    virtual bool setHeartRateEnabled(bool) { return false; }
+    virtual bool setMotionEnabled(bool) { return false; }
+    virtual bool setBackground(Background) { return false; }
 
     virtual Hands* GetHands() { return &hands; };
 

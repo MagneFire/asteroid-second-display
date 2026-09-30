@@ -17,9 +17,14 @@ enum : unsigned int {
     TimeSync = 1u << 0,
     TimepieceMode = 1u << 1,
     StepCounter = 1u << 2,
+    HeartRate = 1u << 3,
+    Motion = 1u << 4,
+    DisplayColor = 1u << 5,
     Hands = 1u << 6,
 };
 }
+
+enum class Background : int { Black = 0, White = 1 };
 
 }
 

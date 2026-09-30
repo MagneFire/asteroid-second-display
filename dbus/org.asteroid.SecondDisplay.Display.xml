@@ -3,6 +3,9 @@
   <interface name="org.asteroid.SecondDisplay.Display">
     <property name="Capabilities" type="u" access="read"/>
     <property name="StepCounterEnabled" type="b" access="readwrite"/>
+    <property name="HeartRateEnabled" type="b" access="readwrite"/>
+    <property name="MotionEnabled" type="b" access="readwrite"/>
+    <property name="DisplayColor" type="i" access="readwrite"/>
     <method name="SynchronizeTime">
       <arg name="ok" type="b" direction="out"/>
     </method>

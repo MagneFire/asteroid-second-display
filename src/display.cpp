@@ -41,6 +41,44 @@ void Display::setStepCounterEnabled(bool enabled)
         emit stepCounterEnabledChanged();
 }
 
+bool Display::heartRateEnabled() const
+{
+    return m_heartRateEnabled;
+}
+
+void Display::setHeartRateEnabled(bool enabled)
+{
+    if (applyFeature(m_heartRateEnabled, enabled, Capability::HeartRate, &Backend::setHeartRateEnabled))
+        emit heartRateEnabledChanged();
+}
+
+bool Display::motionEnabled() const
+{
+    return m_motionEnabled;
+}
+
+void Display::setMotionEnabled(bool enabled)
+{
+    if (applyFeature(m_motionEnabled, enabled, Capability::Motion, &Backend::setMotionEnabled))
+        emit motionEnabledChanged();
+}
+
+int Display::displayColor() const
+{
+    return static_cast<int>(m_background);
+}
+
+void Display::setDisplayColor(int color)
+{
+    const auto background = static_cast<Background>(color);
+    if (background != Background::Black && background != Background::White)
+        return;
+    if (background == m_background || !supports(Capability::DisplayColor) || !m_backend->setBackground(background))
+        return;
+    m_background = background;
+    emit displayColorChanged();
+}
+
 bool Display::SynchronizeTime()
 {
     return supports(Capability::TimeSync) && m_backend->synchronizeTime(TimeFormat::TwentyFourHour);
