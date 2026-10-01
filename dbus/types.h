@@ -21,6 +21,7 @@ enum : unsigned int {
     Motion = 1u << 4,
     DisplayColor = 1u << 5,
     Hands = 1u << 6,
+    AodOffload = 1u << 7,
 };
 }
 

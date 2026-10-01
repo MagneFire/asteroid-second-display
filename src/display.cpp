@@ -5,6 +5,8 @@
 
 #include "settingskeys.h"
 
+#include <QDBusConnection>
+
 namespace SecondDisplay {
 
 struct Display::Feature
@@ -23,6 +25,9 @@ const Display::Feature Display::HeartRate{&Display::m_heartRateEnabled, Settings
                                           &Backend::setHeartRateEnabled, &Display::heartRateEnabledChanged};
 const Display::Feature Display::Motion{&Display::m_motionEnabled, SettingsKey::Motion, Capability::Motion,
                                        &Backend::setMotionEnabled, &Display::motionEnabledChanged};
+const Display::Feature Display::AodOffload{&Display::m_aodOffloadEnabled, SettingsKey::AodOffload,
+                                           Capability::AodOffload, &Backend::setAodOffloadEnabled,
+                                           &Display::aodOffloadEnabledChanged};
 
 Display::Display(Backend *backend, SettingsStore *settings, PowerOff powerOff, QObject *parent)
     : QObject(parent)
@@ -32,16 +37,32 @@ Display::Display(Backend *backend, SettingsStore *settings, PowerOff powerOff, Q
 {
     connect(m_backend, &Backend::capabilitiesChanged, this, &Display::capabilitiesChanged);
     connect(m_backend, &Backend::capabilitiesChanged, this, &Display::applyStoredSettings);
+    connect(m_backend, &Backend::capabilitiesChanged, this, &Display::followDisplayStateIfNeeded);
     connect(m_settings, &SettingsStore::valueChanged, this, [this](const QString &key) {
         if (key == QLatin1String(SettingsKey::Use12HourFormat))
             SynchronizeTime();
     });
     applyStoredSettings();
+    followDisplayStateIfNeeded();
+}
+
+void Display::followDisplayStateIfNeeded()
+{
+    if (m_followingDisplayState || !supports(Capability::AodOffload))
+        return;
+    m_followingDisplayState = QDBusConnection::systemBus().connect(
+        "com.nokia.mce", "/com/nokia/mce/signal", "com.nokia.mce.signal", "display_status_ind", this,
+        SLOT(onDisplayStatusChanged(QString)));
+}
+
+void Display::onDisplayStatusChanged(const QString &state)
+{
+    m_backend->displayStateChanged(state);
 }
 
 void Display::applyStoredSettings()
 {
-    for (const Feature *feature : {&StepCounter, &HeartRate, &Motion}) {
+    for (const Feature *feature : {&StepCounter, &HeartRate, &Motion, &AodOffload}) {
         const QVariant stored = m_settings->value(feature->settingsKey);
         if (stored.isValid())
             applyFeature(*feature, stored.toBool());
@@ -133,6 +154,16 @@ void Display::setDisplayColor(int color)
 {
     if (applyBackground(static_cast<Background>(color)))
         m_settings->setValue(SettingsKey::DisplayColor, color);
+}
+
+bool Display::aodOffloadEnabled() const
+{
+    return m_aodOffloadEnabled;
+}
+
+void Display::setAodOffloadEnabled(bool enabled)
+{
+    setFeatureEnabled(AodOffload, enabled);
 }
 
 bool Display::SynchronizeTime()
