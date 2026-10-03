@@ -64,6 +64,10 @@ if(GBINDER_FOUND)
 	target_link_libraries(seconddisplay-sidekick PUBLIC Qt6::Core PkgConfig::GBINDER)
 	target_compile_definitions(seconddisplay-sidekick PUBLIC
 		HOKI_FACE_DIR="${CMAKE_INSTALL_FULL_DATADIR}/asteroid-seconddisplay/hoki")
+
+	target_sources(asteroid-seconddisplayd PRIVATE backend_hoki.cpp backend_hoki.h)
+	target_compile_definitions(asteroid-seconddisplayd PRIVATE HAVE_GBINDER)
+	target_link_libraries(asteroid-seconddisplayd PRIVATE seconddisplay-sidekick)
 endif()
 
 if(MLITE_FOUND)
