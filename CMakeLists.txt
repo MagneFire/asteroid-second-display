@@ -21,6 +21,7 @@ add_feature_info(libhybris HYBRIS_FOUND "Backend for catfish and rubyfish")
 add_feature_info(libgbinder GBINDER_FOUND "Backend for hoki")
 add_feature_info(mlite6 MLITE_FOUND "Keeps settings in dconf; without it they are lost on restart")
 
+add_subdirectory(assets)
 add_subdirectory(dbus)
 add_subdirectory(src)
 add_subdirectory(systemd)
