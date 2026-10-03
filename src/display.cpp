@@ -144,7 +144,8 @@ bool Display::SynchronizeTime()
 
 bool Display::EnterTimepieceMode(bool powerOff)
 {
-    return supports(Capability::TimepieceMode) && m_backend->prepareTimepiece() && (!powerOff || m_powerOff());
+    return supports(Capability::TimepieceMode) && m_backend->prepareTimepiece()
+        && (!powerOff || (m_backend->enterTimepiece() && m_powerOff()));
 }
 
 }

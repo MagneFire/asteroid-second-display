@@ -25,6 +25,7 @@ public:
 
     virtual bool synchronizeTime(TimeFormat) { return false; }
     virtual bool prepareTimepiece() { return false; }
+    virtual bool enterTimepiece() { return true; }
 
     virtual bool setStepCounterEnabled(bool) { return false; }
     virtual bool setHeartRateEnabled(bool) { return false; }
