@@ -4,3 +4,10 @@ target_link_libraries(asteroid-seconddisplay PRIVATE Qt6::DBus)
 
 install(TARGETS asteroid-seconddisplay
 	DESTINATION ${CMAKE_INSTALL_BINDIR})
+
+if(GBINDER_FOUND)
+	add_executable(asteroid-seconddisplay-hoki-probe hoki-probe.cpp)
+	target_link_libraries(asteroid-seconddisplay-hoki-probe PRIVATE seconddisplay-sidekick)
+	install(TARGETS asteroid-seconddisplay-hoki-probe
+		DESTINATION ${CMAKE_INSTALL_BINDIR})
+endif()
