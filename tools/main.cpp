@@ -19,6 +19,7 @@ namespace {
 
 QTextStream err(stderr);
 QTextStream out(stdout);
+constexpr int CallTimeoutMs = 120000;
 
 class Daemon
 {
@@ -28,7 +29,7 @@ public:
     {
         QDBusMessage message = QDBusMessage::createMethodCall(ServiceName, path, interface, method);
         message.setArguments(arguments);
-        const QDBusMessage reply = QDBusConnection::sessionBus().call(message);
+        const QDBusMessage reply = QDBusConnection::sessionBus().call(message, QDBus::Block, CallTimeoutMs);
         if (reply.type() == QDBusMessage::ErrorMessage) {
             err << method << ": " << reply.errorMessage() << Qt::endl;
             return false;
