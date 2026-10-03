@@ -55,9 +55,15 @@ if(GBINDER_FOUND)
 	add_library(seconddisplay-sidekick STATIC
 		hidl/sidekickclient.cpp
 		hidl/sidekickclient.h
-		hidl/sidekicktypes.h)
-	target_include_directories(seconddisplay-sidekick PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/hidl)
+		hidl/sidekicktypes.h
+		hoki/timepieceface.cpp
+		hoki/timepieceface.h)
+	target_include_directories(seconddisplay-sidekick PUBLIC
+		${CMAKE_CURRENT_SOURCE_DIR}/hidl
+		${CMAKE_CURRENT_SOURCE_DIR}/hoki)
 	target_link_libraries(seconddisplay-sidekick PUBLIC Qt6::Core PkgConfig::GBINDER)
+	target_compile_definitions(seconddisplay-sidekick PUBLIC
+		HOKI_FACE_DIR="${CMAKE_INSTALL_FULL_DATADIR}/asteroid-seconddisplay/hoki")
 endif()
 
 if(MLITE_FOUND)
