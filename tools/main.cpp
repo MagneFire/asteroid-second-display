@@ -177,6 +177,11 @@ int main(int argc, char **argv)
          [](const Daemon &daemon, const QString &) {
              return daemon.callBool(DisplayPath, DisplayInterface, "EnterTimepieceMode", {true});
          }},
+        {{"prepare-timepiece", "Prepare timepiece mode without powering off."},
+         Capability::TimepieceMode,
+         [](const Daemon &daemon, const QString &) {
+             return daemon.callBool(DisplayPath, DisplayInterface, "EnterTimepieceMode", {false});
+         }},
         {{"step-counter", "Turn the step counter on or off.", "on|off"}, Capability::StepCounter,
          setToggle("StepCounterEnabled")},
         {{"heart-rate", "Turn the heart rate sensor on or off.", "on|off"}, Capability::HeartRate,
