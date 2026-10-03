@@ -51,6 +51,15 @@ if(HYBRIS_FOUND)
 	target_link_libraries(asteroid-seconddisplayd PRIVATE PkgConfig::HYBRIS)
 endif()
 
+if(GBINDER_FOUND)
+	add_library(seconddisplay-sidekick STATIC
+		hidl/sidekickclient.cpp
+		hidl/sidekickclient.h
+		hidl/sidekicktypes.h)
+	target_include_directories(seconddisplay-sidekick PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/hidl)
+	target_link_libraries(seconddisplay-sidekick PUBLIC Qt6::Core PkgConfig::GBINDER)
+endif()
+
 if(MLITE_FOUND)
 	target_sources(asteroid-seconddisplayd PRIVATE dconfsettingsstore.cpp)
 	target_compile_definitions(asteroid-seconddisplayd PRIVATE HAVE_MLITE)
