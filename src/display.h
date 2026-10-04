@@ -4,6 +4,7 @@
 #ifndef DISPLAY_H
 #define DISPLAY_H
 
+#include <QDBusVariant>
 #include <QObject>
 #include <functional>
 
@@ -21,6 +22,7 @@ class Display : public QObject
     Q_PROPERTY(bool MotionEnabled READ motionEnabled WRITE setMotionEnabled NOTIFY motionEnabledChanged)
     Q_PROPERTY(int DisplayColor READ displayColor WRITE setDisplayColor NOTIFY displayColorChanged)
     Q_PROPERTY(bool AodOffloadEnabled READ aodOffloadEnabled WRITE setAodOffloadEnabled NOTIFY aodOffloadEnabledChanged)
+    Q_PROPERTY(bool AodOffloadActive READ aodOffloadActive NOTIFY aodOffloadActiveChanged)
 
 public:
     using PowerOff = std::function<bool()>;
@@ -39,10 +41,12 @@ public:
     void setDisplayColor(int color);
     bool aodOffloadEnabled() const;
     void setAodOffloadEnabled(bool enabled);
+    bool aodOffloadActive() const;
 
 public slots:
     bool SynchronizeTime();
     bool EnterTimepieceMode(bool powerOff);
+    bool ReleaseAodOffload();
 
 signals:
     void capabilitiesChanged();
@@ -51,9 +55,11 @@ signals:
     void motionEnabledChanged();
     void displayColorChanged();
     void aodOffloadEnabledChanged();
+    void aodOffloadActiveChanged();
 
 private slots:
     void onDisplayStatusChanged(const QString &state);
+    void onMceConfigChanged(const QString &key, const QDBusVariant &value);
 
 private:
     struct Feature;

@@ -6,6 +6,21 @@
 #include "settingskeys.h"
 
 #include <QDBusConnection>
+#include <QDBusMessage>
+#include <QDBusObjectPath>
+#include <QDBusPendingCallWatcher>
+#include <QDBusPendingReply>
+
+namespace {
+
+const char MceService[] = "com.nokia.mce";
+const char MceRequestPath[] = "/com/nokia/mce/request";
+const char MceRequestInterface[] = "com.nokia.mce.request";
+const char MceSignalPath[] = "/com/nokia/mce/signal";
+const char MceSignalInterface[] = "com.nokia.mce.signal";
+const char MceLowPowerModeKey[] = "/system/osso/dsm/display/use_low_power_mode";
+
+}
 
 namespace SecondDisplay {
 
@@ -38,6 +53,7 @@ Display::Display(Backend *backend, SettingsStore *settings, PowerOff powerOff, Q
     connect(m_backend, &Backend::capabilitiesChanged, this, &Display::capabilitiesChanged);
     connect(m_backend, &Backend::capabilitiesChanged, this, &Display::applyStoredSettings);
     connect(m_backend, &Backend::capabilitiesChanged, this, &Display::followDisplayStateIfNeeded);
+    connect(m_backend, &Backend::aodOffloadActiveChanged, this, &Display::aodOffloadActiveChanged);
     connect(m_settings, &SettingsStore::valueChanged, this, [this](const QString &key) {
         if (key == QLatin1String(SettingsKey::Use12HourFormat))
             SynchronizeTime();
@@ -50,14 +66,43 @@ void Display::followDisplayStateIfNeeded()
 {
     if (m_followingDisplayState || !supports(Capability::AodOffload))
         return;
-    m_followingDisplayState = QDBusConnection::systemBus().connect(
-        "com.nokia.mce", "/com/nokia/mce/signal", "com.nokia.mce.signal", "display_status_ind", this,
-        SLOT(onDisplayStatusChanged(QString)));
+    QDBusConnection bus = QDBusConnection::systemBus();
+    m_followingDisplayState = bus.connect(MceService, MceSignalPath, MceSignalInterface, "display_status_ind", this,
+                                          SLOT(onDisplayStatusChanged(QString)));
+    bus.connect(MceService, MceSignalPath, MceSignalInterface, "config_change_ind", this,
+                SLOT(onMceConfigChanged(QString, QDBusVariant)));
+
+    QDBusMessage lowPowerMode = QDBusMessage::createMethodCall(MceService, MceRequestPath, MceRequestInterface,
+                                                               "get_config");
+    lowPowerMode << QVariant::fromValue(QDBusObjectPath(MceLowPowerModeKey));
+    auto *configWatcher = new QDBusPendingCallWatcher(bus.asyncCall(lowPowerMode), this);
+    connect(configWatcher, &QDBusPendingCallWatcher::finished, this, [this](QDBusPendingCallWatcher *watcher) {
+        QDBusPendingReply<QDBusVariant> reply = *watcher;
+        watcher->deleteLater();
+        if (reply.isValid())
+            onMceConfigChanged(MceLowPowerModeKey, reply.value());
+    });
+
+    QDBusMessage displayStatus = QDBusMessage::createMethodCall(MceService, MceRequestPath, MceRequestInterface,
+                                                                "get_display_status");
+    auto *statusWatcher = new QDBusPendingCallWatcher(bus.asyncCall(displayStatus), this);
+    connect(statusWatcher, &QDBusPendingCallWatcher::finished, this, [this](QDBusPendingCallWatcher *watcher) {
+        QDBusPendingReply<QString> reply = *watcher;
+        watcher->deleteLater();
+        if (reply.isValid())
+            onDisplayStatusChanged(reply.value());
+    });
 }
 
 void Display::onDisplayStatusChanged(const QString &state)
 {
     m_backend->displayStateChanged(state);
+}
+
+void Display::onMceConfigChanged(const QString &key, const QDBusVariant &value)
+{
+    if (key == QLatin1String(MceLowPowerModeKey))
+        m_backend->setAmbientEnabled(value.variant().toBool());
 }
 
 void Display::applyStoredSettings()
@@ -164,6 +209,16 @@ bool Display::aodOffloadEnabled() const
 void Display::setAodOffloadEnabled(bool enabled)
 {
     setFeatureEnabled(AodOffload, enabled);
+}
+
+bool Display::aodOffloadActive() const
+{
+    return m_backend->aodOffloadActive();
+}
+
+bool Display::ReleaseAodOffload()
+{
+    return m_backend->releaseAodOffload();
 }
 
 bool Display::SynchronizeTime()

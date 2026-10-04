@@ -32,7 +32,10 @@ public:
     virtual bool setMotionEnabled(bool) { return false; }
     virtual bool setBackground(Background) { return false; }
     virtual bool setAodOffloadEnabled(bool) { return false; }
+    virtual void setAmbientEnabled(bool) {}
     virtual void displayStateChanged(const QString &) {}
+    virtual bool aodOffloadActive() const { return false; }
+    virtual bool releaseAodOffload() { return true; }
 
     virtual bool watchMode() const { return false; }
     virtual unsigned int handResolution() const { return 0; }
@@ -45,6 +48,7 @@ public:
 signals:
     void capabilitiesChanged();
     void watchModeChanged();
+    void aodOffloadActiveChanged();
 };
 
 std::unique_ptr<Backend> createBackend(const QString &machine);
