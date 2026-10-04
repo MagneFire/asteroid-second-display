@@ -8,7 +8,7 @@
 
 #include "backend.h"
 #include "sidekickclient.h"
-#include "timepieceface.h"
+#include "face.h"
 
 namespace SecondDisplay {
 
@@ -28,12 +28,17 @@ public:
     void displayStateChanged(const QString &state) override;
     bool aodOffloadActive() const override;
     bool releaseAodOffload() override;
+    bool setFace(const FaceDescription &description) override;
+    void clearFace() override;
 
 private:
     void onConnected();
     void onDisconnected();
-    bool uploadFace(const TimepieceFace &face);
-    bool loadFace();
+    std::optional<Face> buildFace() const;
+    bool uploadFace(const Face &face);
+    bool ensureFaceLoaded();
+    Sidekick::ColorFormat colorFormat() const;
+    void reloadFace();
     bool configureTimepiece();
     bool blankDisplay() const;
     void startOffload();
@@ -41,6 +46,7 @@ private:
     void setOffloadActive(bool active);
 
     QString m_faceDirectory;
+    std::optional<FaceDescription> m_face;
     SidekickClient m_client;
     std::optional<SidekickClient::Capabilities> m_capabilities;
     TimeFormat m_format = TimeFormat::TwentyFourHour;

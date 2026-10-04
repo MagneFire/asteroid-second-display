@@ -66,28 +66,64 @@ bool HokiBackend::synchronizeTime(TimeFormat format)
 {
     const bool formatChanged = format != m_format;
     m_format = format;
-    if (formatChanged && m_faceLoaded) {
-        const bool active = m_offloadActive;
-        if (active)
-            stopOffload();
-        m_faceLoaded = false;
-        if (active)
-            startOffload();
-    }
+    if (formatChanged)
+        reloadFace();
     return m_client.updateDisplayTime().ok();
 }
 
-bool HokiBackend::loadFace()
+std::optional<Face> HokiBackend::buildFace() const
+{
+    if (!m_capabilities)
+        return std::nullopt;
+    const int displayWidth = static_cast<int>(m_capabilities->displayWidth);
+    const auto description = m_face ? m_face : defaultFaceDescription(m_faceDirectory, displayWidth);
+    if (!description)
+        return std::nullopt;
+    return loadFace(*description, m_format == TimeFormat::TwelveHour);
+}
+
+bool HokiBackend::setFace(const FaceDescription &description)
+{
+    if (!loadFace(description, m_format == TimeFormat::TwelveHour))
+        return false;
+    m_face = description;
+    reloadFace();
+    return true;
+}
+
+void HokiBackend::clearFace()
+{
+    if (!m_face)
+        return;
+    m_face.reset();
+    reloadFace();
+}
+
+void HokiBackend::reloadFace()
+{
+    if (!m_faceLoaded)
+        return;
+    const bool active = m_offloadActive;
+    if (active)
+        stopOffload();
+    m_faceLoaded = false;
+    if (active)
+        startOffload();
+}
+
+Sidekick::ColorFormat HokiBackend::colorFormat() const
+{
+    return m_face && m_face->color ? Sidekick::ColorFormat::Rgb565 : Sidekick::ColorFormat::Gray;
+}
+
+bool HokiBackend::ensureFaceLoaded()
 {
     if (m_faceLoaded)
         return true;
-    if (!m_capabilities)
-        return false;
-    const auto face = loadTimepieceFace(m_faceDirectory, m_format == TimeFormat::TwelveHour,
-                                        static_cast<int>(m_capabilities->displayWidth));
+    const auto face = buildFace();
     if (!face)
         return false;
-    if (!m_client.reset().ok() || !m_client.setColorFormat(Sidekick::ColorFormat::Gray).ok() || !uploadFace(*face))
+    if (!m_client.reset().ok() || !m_client.setColorFormat(colorFormat()).ok() || !uploadFace(*face))
         return false;
     if (!m_client.setBrightness(true, {}, {}, {TimepieceBrightness}, {TimepieceBrightnessDim}).ok())
         return false;
@@ -139,7 +175,7 @@ void HokiBackend::startOffload()
 {
     if (m_offloadActive || !m_offloadEnabled || !m_ambientEnabled || !m_capabilities || m_timepiecePrepared)
         return;
-    if (!loadFace())
+    if (!m_face || !ensureFaceLoaded())
         return;
     m_client.updateDisplayTime();
     for (int attempt = 0; attempt < BeginDisplayRetries; ++attempt) {
@@ -169,13 +205,14 @@ void HokiBackend::setOffloadActive(bool active)
     emit aodOffloadActiveChanged();
 }
 
-bool HokiBackend::uploadFace(const TimepieceFace &face)
+bool HokiBackend::uploadFace(const Face &face)
 {
     if (!m_client.beginResources().ok())
         return false;
-    const bool sent = m_client.sendFontPng8888(face.font, face.fontPng).ok()
+    const bool sent = m_client.sendFontPng8888(face.font.info, face.font.png).ok()
+        && (!face.minuteFont || m_client.sendFontPng8888(face.minuteFont->info, face.minuteFont->png).ok())
         && m_client.sendBitmapPng8888(face.background.drawable, face.background.png).ok()
-        && m_client.sendBitmapPng8888(face.colon.drawable, face.colon.png).ok()
+        && (!face.colon || m_client.sendBitmapPng8888(face.colon->drawable, face.colon->png).ok())
         && m_client.sendNumberResource(face.hours.drawable, face.hours.number).ok()
         && m_client.sendNumberResource(face.minutes.drawable, face.minutes.number).ok();
     const bool ok = m_client.endResources().ok() && sent;
@@ -194,15 +231,12 @@ bool HokiBackend::configureTimepiece()
 
 bool HokiBackend::prepareTimepiece()
 {
-    if (!m_capabilities)
-        return false;
-    const auto face = loadTimepieceFace(m_faceDirectory, m_format == TimeFormat::TwelveHour,
-                                        static_cast<int>(m_capabilities->displayWidth));
+    const auto face = buildFace();
     if (!face)
         return false;
     stopOffload();
     m_faceLoaded = false;
-    if (!m_client.reset().ok() || !m_client.setColorFormat(Sidekick::ColorFormat::Gray).ok() || !uploadFace(*face)
+    if (!m_client.reset().ok() || !m_client.setColorFormat(colorFormat()).ok() || !uploadFace(*face)
         || !configureTimepiece() || !m_client.prepareTwm().ok())
         return false;
     m_timepiecePrepared = true;

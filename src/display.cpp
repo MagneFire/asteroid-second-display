@@ -221,6 +221,27 @@ bool Display::ReleaseAodOffload()
     return m_backend->releaseAodOffload();
 }
 
+bool Display::SetFace(const QVariantMap &description)
+{
+    FaceDescription face;
+    face.backgroundPng = description.value("background").toString();
+    face.digitsPng = description.value("digits").toString();
+    face.minuteDigitsPng = description.value("minuteDigits").toString();
+    face.colonPng = description.value("colon").toString();
+    face.hours = QPoint(description.value("hoursX").toInt(), description.value("hoursY").toInt());
+    face.minutes = QPoint(description.value("minutesX").toInt(), description.value("minutesY").toInt());
+    face.colon = QPoint(description.value("colonX").toInt(), description.value("colonY").toInt());
+    face.color = description.value("color").toBool();
+    if (face.backgroundPng.isEmpty() || face.digitsPng.isEmpty())
+        return false;
+    return supports(Capability::AodOffload | Capability::TimepieceMode) && m_backend->setFace(face);
+}
+
+void Display::ClearFace()
+{
+    m_backend->clearFace();
+}
+
 bool Display::SynchronizeTime()
 {
     const bool twelveHour = m_settings->value(SettingsKey::Use12HourFormat).toBool();

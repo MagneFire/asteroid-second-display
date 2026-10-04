@@ -1,8 +1,8 @@
 // SPDX-FileCopyrightText: 2026 Darrel Griët <dgriet@gmail.com>
 // SPDX-License-Identifier: GPL-3.0-only
 
-#ifndef TIMEPIECEFACE_H
-#define TIMEPIECEFACE_H
+#ifndef HOKI_FACE_H
+#define HOKI_FACE_H
 
 #include <QByteArray>
 #include <QList>
@@ -10,11 +10,12 @@
 #include <cstdint>
 #include <optional>
 
+#include "facedescription.h"
 #include "sidekicktypes.h"
 
 namespace SecondDisplay {
 
-struct TimepieceFace
+struct Face
 {
     struct Bitmap
     {
@@ -28,17 +29,24 @@ struct TimepieceFace
         Sidekick::NumberInfo number;
     };
 
-    Sidekick::FontInfo font;
-    QByteArray fontPng;
+    struct Font
+    {
+        Sidekick::FontInfo info;
+        QByteArray png;
+    };
+
+    Font font;
+    std::optional<Font> minuteFont;
     Bitmap background;
-    Bitmap colon;
+    std::optional<Bitmap> colon;
     Number hours;
     Number minutes;
 
     QList<std::uint32_t> ids() const;
 };
 
-std::optional<TimepieceFace> loadTimepieceFace(const QString &directory, bool twelveHour, int displayWidth);
+std::optional<FaceDescription> defaultFaceDescription(const QString &directory, int displayWidth);
+std::optional<Face> loadFace(const FaceDescription &description, bool twelveHour);
 
 }
 

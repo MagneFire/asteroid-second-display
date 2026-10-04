@@ -8,6 +8,7 @@
 #include <QObject>
 #include <memory>
 
+#include "facedescription.h"
 #include "types.h"
 
 namespace SecondDisplay {
@@ -36,6 +37,8 @@ public:
     virtual void displayStateChanged(const QString &) {}
     virtual bool aodOffloadActive() const { return false; }
     virtual bool releaseAodOffload() { return true; }
+    virtual bool setFace(const FaceDescription &) { return false; }
+    virtual void clearFace() {}
 
     virtual bool watchMode() const { return false; }
     virtual unsigned int handResolution() const { return 0; }

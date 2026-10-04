@@ -6,6 +6,7 @@
 
 #include <QDBusVariant>
 #include <QObject>
+#include <QVariantMap>
 #include <functional>
 
 #include "backend.h"
@@ -47,6 +48,8 @@ public slots:
     bool SynchronizeTime();
     bool EnterTimepieceMode(bool powerOff);
     bool ReleaseAodOffload();
+    bool SetFace(const QVariantMap &description);
+    void ClearFace();
 
 signals:
     void capabilitiesChanged();

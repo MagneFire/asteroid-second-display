@@ -11,6 +11,7 @@ set(SRC
 )
 set(HEADERS
     backend.h
+    facedescription.h
     display.h
     hands.h
     propertieschangedrelay.h
@@ -56,9 +57,10 @@ if(GBINDER_FOUND)
 		hidl/sidekickclient.cpp
 		hidl/sidekickclient.h
 		hidl/sidekicktypes.h
-		hoki/timepieceface.cpp
-		hoki/timepieceface.h)
+		hoki/face.cpp
+		hoki/face.h)
 	target_include_directories(seconddisplay-sidekick PUBLIC
+		${CMAKE_CURRENT_SOURCE_DIR}
 		${CMAKE_CURRENT_SOURCE_DIR}/hidl
 		${CMAKE_CURRENT_SOURCE_DIR}/hoki)
 	target_link_libraries(seconddisplay-sidekick PUBLIC Qt6::Core PkgConfig::GBINDER)

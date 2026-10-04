@@ -11,6 +11,12 @@
     <method name="ReleaseAodOffload">
       <arg name="ok" type="b" direction="out"/>
     </method>
+    <method name="SetFace">
+      <arg name="description" type="a{sv}" direction="in"/>
+      <annotation name="org.qtproject.QtDBus.QtTypeName.In0" value="QVariantMap"/>
+      <arg name="ok" type="b" direction="out"/>
+    </method>
+    <method name="ClearFace"/>
     <method name="SynchronizeTime">
       <arg name="ok" type="b" direction="out"/>
     </method>
