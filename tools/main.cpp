@@ -7,6 +7,9 @@
 #include <QDBusConnection>
 #include <QDBusMessage>
 #include <QDBusVariant>
+#include <QFile>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <QTextStream>
 #include <functional>
 #include <optional>
@@ -146,6 +149,22 @@ bool calibrate(const Daemon &daemon, const QString &argument)
                            {static_cast<int>(*hand), static_cast<int>(*rotation), steps});
 }
 
+bool setFace(const Daemon &daemon, const QString &argument)
+{
+    QFile file(argument);
+    if (!file.open(QIODevice::ReadOnly)) {
+        err << "Unable to read " << argument << Qt::endl;
+        return false;
+    }
+    QJsonParseError error;
+    const QJsonDocument document = QJsonDocument::fromJson(file.readAll(), &error);
+    if (!document.isObject()) {
+        err << argument << ": " << error.errorString() << Qt::endl;
+        return false;
+    }
+    return daemon.callBool(DisplayPath, DisplayInterface, "SetFace", {document.object().toVariantMap()});
+}
+
 bool printPositions(const Daemon &daemon, const QString &)
 {
     QVariant positions;
@@ -190,6 +209,14 @@ int main(int argc, char **argv)
         {{"motion", "Turn motion on or off.", "on|off"}, Capability::Motion, setToggle("MotionEnabled")},
         {{"aod-offload", "Let the second display draw the always-on display.", "on|off"}, Capability::AodOffload,
          setToggle("AodOffloadEnabled")},
+        {{"face", "Show the face described by a JSON file instead of the generic one.", "file"},
+         Capability::AodOffload | Capability::TimepieceMode,
+         setFace},
+        {{"clear-face", "Show the generic face again."},
+         Capability::AodOffload | Capability::TimepieceMode,
+         [](const Daemon &daemon, const QString &) {
+             return daemon.call(DisplayPath, DisplayInterface, "ClearFace", {});
+         }},
         {{"background", "Set the display background.", "black|white"}, Capability::DisplayColor, setBackground},
         {{"positions", "Print the hand positions."}, Capability::Hands, printPositions},
         {{"move-hand", "Move a hand, e.g. minute:90.", "hand:position"}, Capability::Hands, moveHand},
