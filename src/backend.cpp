@@ -8,6 +8,9 @@
 #ifdef HAVE_HYBRIS
 #include "backend_mobvoi.h"
 #endif
+#ifdef HAVE_GBINDER
+#include "backend_hoki.h"
+#endif
 
 #include <QDebug>
 
@@ -26,6 +29,10 @@ std::unique_ptr<Backend> createBackend(const QString &machine)
         return std::make_unique<MobvoiBackend>(Catfish);
     if (machine == "rubyfish")
         return std::make_unique<MobvoiBackend>(Rubyfish);
+#endif
+#ifdef HAVE_GBINDER
+    if (machine == "hoki")
+        return std::make_unique<HokiBackend>();
 #endif
     qInfo() << machine << "has no second display support";
     return std::make_unique<Backend>();
