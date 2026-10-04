@@ -23,19 +23,33 @@ public:
     bool synchronizeTime(TimeFormat format) override;
     bool prepareTimepiece() override;
     bool enterTimepiece() override;
+    bool setAodOffloadEnabled(bool enabled) override;
+    void setAmbientEnabled(bool enabled) override;
+    void displayStateChanged(const QString &state) override;
+    bool aodOffloadActive() const override;
+    bool releaseAodOffload() override;
 
 private:
     void onConnected();
     void onDisconnected();
     bool uploadFace(const TimepieceFace &face);
+    bool loadFace();
     bool configureTimepiece();
     bool blankDisplay() const;
+    void startOffload();
+    void stopOffload();
+    void setOffloadActive(bool active);
 
     QString m_faceDirectory;
     SidekickClient m_client;
     std::optional<SidekickClient::Capabilities> m_capabilities;
     TimeFormat m_format = TimeFormat::TwentyFourHour;
     bool m_timepiecePrepared = false;
+    bool m_faceLoaded = false;
+    bool m_offloadEnabled = false;
+    bool m_ambientEnabled = true;
+    bool m_displayOff = false;
+    bool m_offloadActive = false;
 };
 
 }

@@ -7,6 +7,7 @@
 #include <QDBusMessage>
 #include <QDebug>
 #include <QDir>
+#include <QThread>
 
 namespace SecondDisplay {
 
@@ -16,6 +17,8 @@ constexpr std::int16_t TimepieceBrightness = 128;
 constexpr std::int16_t TimepieceBrightnessDim = 40;
 constexpr std::uint32_t TimepieceBrightMs = 5000;
 constexpr bool TimepieceTiltToBright = true;
+constexpr int BeginDisplayRetries = 20;
+constexpr int BeginDisplayRetryMs = 100;
 
 }
 
@@ -30,6 +33,7 @@ HokiBackend::HokiBackend(const QString &faceDirectory, QObject *parent)
 
 void HokiBackend::onConnected()
 {
+    m_client.endDisplay(Sidekick::DisplayPowerState::Full);
     m_capabilities = m_client.getCapabilities();
     if (m_capabilities) {
         qInfo().nospace() << "Sidekick capabilities 0x" << Qt::hex << m_capabilities->capabilities << Qt::dec << ", "
@@ -43,6 +47,8 @@ void HokiBackend::onDisconnected()
 {
     m_capabilities.reset();
     m_timepiecePrepared = false;
+    m_faceLoaded = false;
+    setOffloadActive(false);
     emit capabilitiesChanged();
 }
 
@@ -52,14 +58,115 @@ unsigned int HokiBackend::capabilities() const
         return 0;
     unsigned int capabilities = Capability::TimeSync;
     if (QDir(m_faceDirectory).exists("digits.png"))
-        capabilities |= Capability::TimepieceMode;
+        capabilities |= Capability::TimepieceMode | Capability::AodOffload;
     return capabilities;
 }
 
 bool HokiBackend::synchronizeTime(TimeFormat format)
 {
+    const bool formatChanged = format != m_format;
     m_format = format;
+    if (formatChanged && m_faceLoaded) {
+        const bool active = m_offloadActive;
+        if (active)
+            stopOffload();
+        m_faceLoaded = false;
+        if (active)
+            startOffload();
+    }
     return m_client.updateDisplayTime().ok();
+}
+
+bool HokiBackend::loadFace()
+{
+    if (m_faceLoaded)
+        return true;
+    if (!m_capabilities)
+        return false;
+    const auto face = loadTimepieceFace(m_faceDirectory, m_format == TimeFormat::TwelveHour,
+                                        static_cast<int>(m_capabilities->displayWidth));
+    if (!face)
+        return false;
+    if (!m_client.reset().ok() || !m_client.setColorFormat(Sidekick::ColorFormat::Gray).ok() || !uploadFace(*face))
+        return false;
+    if (!m_client.setBrightness(true, {}, {}, {TimepieceBrightness}, {TimepieceBrightnessDim}).ok())
+        return false;
+    m_client.setAlsMode(Sidekick::AlsMode::Off, 0, 0);
+    m_faceLoaded = true;
+    return true;
+}
+
+bool HokiBackend::setAodOffloadEnabled(bool enabled)
+{
+    m_offloadEnabled = enabled;
+    if (enabled && m_displayOff)
+        startOffload();
+    else if (!enabled)
+        stopOffload();
+    return true;
+}
+
+void HokiBackend::setAmbientEnabled(bool enabled)
+{
+    m_ambientEnabled = enabled;
+    if (enabled && m_displayOff)
+        startOffload();
+    else if (!enabled)
+        stopOffload();
+}
+
+void HokiBackend::displayStateChanged(const QString &state)
+{
+    m_displayOff = state == QLatin1String("off");
+    if (m_displayOff)
+        startOffload();
+    else
+        stopOffload();
+}
+
+bool HokiBackend::aodOffloadActive() const
+{
+    return m_offloadActive;
+}
+
+bool HokiBackend::releaseAodOffload()
+{
+    stopOffload();
+    return !m_offloadActive;
+}
+
+void HokiBackend::startOffload()
+{
+    if (m_offloadActive || !m_offloadEnabled || !m_ambientEnabled || !m_capabilities || m_timepiecePrepared)
+        return;
+    if (!loadFace())
+        return;
+    m_client.updateDisplayTime();
+    for (int attempt = 0; attempt < BeginDisplayRetries; ++attempt) {
+        if (m_client.beginDisplay(Sidekick::DisplayPowerState::Full, attempt == BeginDisplayRetries - 1).ok()) {
+            setOffloadActive(true);
+            return;
+        }
+        QThread::msleep(BeginDisplayRetryMs);
+    }
+    qWarning() << "The BG did not take the display over";
+}
+
+void HokiBackend::stopOffload()
+{
+    if (!m_offloadActive)
+        return;
+    m_client.endDisplay(Sidekick::DisplayPowerState::Full);
+    setOffloadActive(false);
+}
+
+void HokiBackend::setOffloadActive(bool active)
+{
+    if (m_offloadActive == active)
+        return;
+    m_offloadActive = active;
+    qInfo() << "AOD offload" << (active ? "active" : "stopped");
+    emit aodOffloadActiveChanged();
 }
 
 bool HokiBackend::uploadFace(const TimepieceFace &face)
@@ -93,6 +200,8 @@ bool HokiBackend::prepareTimepiece()
                                         static_cast<int>(m_capabilities->displayWidth));
     if (!face)
         return false;
+    stopOffload();
+    m_faceLoaded = false;
     if (!m_client.reset().ok() || !m_client.setColorFormat(Sidekick::ColorFormat::Gray).ok() || !uploadFace(*face)
         || !configureTimepiece() || !m_client.prepareTwm().ok())
         return false;
