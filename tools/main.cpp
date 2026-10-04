@@ -188,6 +188,8 @@ int main(int argc, char **argv)
         {{"heart-rate", "Turn the heart rate sensor on or off.", "on|off"}, Capability::HeartRate,
          setToggle("HeartRateEnabled")},
         {{"motion", "Turn motion on or off.", "on|off"}, Capability::Motion, setToggle("MotionEnabled")},
+        {{"aod-offload", "Let the second display draw the always-on display.", "on|off"}, Capability::AodOffload,
+         setToggle("AodOffloadEnabled")},
         {{"background", "Set the display background.", "black|white"}, Capability::DisplayColor, setBackground},
         {{"positions", "Print the hand positions."}, Capability::Hands, printPositions},
         {{"move-hand", "Move a hand, e.g. minute:90.", "hand:position"}, Capability::Hands, moveHand},
