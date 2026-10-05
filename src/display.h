@@ -77,6 +77,8 @@ private:
     bool applyBackground(Background background);
     void applyStoredSettings();
     void followDisplayStateIfNeeded();
+    bool applyFace(const QVariantMap &description);
+    void restoreFace();
 
     Backend *m_backend;
     SettingsStore *m_settings;
@@ -87,6 +89,7 @@ private:
     bool m_motionEnabled = false;
     Background m_background = Background::Black;
     bool m_aodOffloadEnabled = false;
+    QVariantMap m_face;
 };
 
 }

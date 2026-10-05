@@ -10,6 +10,12 @@
 #include <QDBusObjectPath>
 #include <QDBusPendingCallWatcher>
 #include <QDBusPendingReply>
+#include <QDir>
+#include <QFile>
+#include <QFileInfo>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QStandardPaths>
 
 namespace {
 
@@ -19,6 +25,11 @@ const char MceRequestInterface[] = "com.nokia.mce.request";
 const char MceSignalPath[] = "/com/nokia/mce/signal";
 const char MceSignalInterface[] = "com.nokia.mce.signal";
 const char MceLowPowerModeKey[] = "/system/osso/dsm/display/use_low_power_mode";
+
+QString facePath()
+{
+    return QStandardPaths::writableLocation(QStandardPaths::RuntimeLocation) + "/asteroid-seconddisplay/face.json";
+}
 
 }
 
@@ -58,8 +69,19 @@ Display::Display(Backend *backend, SettingsStore *settings, PowerOff powerOff, Q
         if (key == QLatin1String(SettingsKey::Use12HourFormat))
             SynchronizeTime();
     });
+    restoreFace();
     applyStoredSettings();
     followDisplayStateIfNeeded();
+}
+
+void Display::restoreFace()
+{
+    QFile file(facePath());
+    if (!file.open(QIODevice::ReadOnly))
+        return;
+    const QJsonDocument document = QJsonDocument::fromJson(file.readAll());
+    if (document.isObject())
+        m_face = document.object().toVariantMap();
 }
 
 void Display::followDisplayStateIfNeeded()
@@ -116,6 +138,9 @@ void Display::applyStoredSettings()
     const QVariant storedColor = m_settings->value(SettingsKey::DisplayColor);
     if (storedColor.isValid())
         applyBackground(static_cast<Background>(storedColor.toInt()));
+
+    if (!m_face.isEmpty())
+        applyFace(m_face);
 
     SynchronizeTime();
 }
@@ -221,7 +246,7 @@ bool Display::ReleaseAodOffload()
     return m_backend->releaseAodOffload();
 }
 
-bool Display::SetFace(const QVariantMap &description)
+bool Display::applyFace(const QVariantMap &description)
 {
     FaceDescription face;
     face.backgroundPng = description.value("background").toString();
@@ -237,8 +262,22 @@ bool Display::SetFace(const QVariantMap &description)
     return supports(Capability::AodOffload | Capability::TimepieceMode) && m_backend->setFace(face);
 }
 
+bool Display::SetFace(const QVariantMap &description)
+{
+    if (!applyFace(description))
+        return false;
+    m_face = description;
+    QFile file(facePath());
+    QDir().mkpath(QFileInfo(file).path());
+    if (file.open(QIODevice::WriteOnly | QIODevice::Truncate))
+        file.write(QJsonDocument(QJsonObject::fromVariantMap(description)).toJson(QJsonDocument::Compact));
+    return true;
+}
+
 void Display::ClearFace()
 {
+    m_face.clear();
+    QFile::remove(facePath());
     m_backend->clearFace();
 }
 
