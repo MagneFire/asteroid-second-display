@@ -25,6 +25,7 @@ public:
     bool enterTimepiece() override;
     bool setAodOffloadEnabled(bool enabled) override;
     void setAmbientEnabled(bool enabled) override;
+    void setAmbientLightSensorEnabled(bool enabled) override;
     void displayStateChanged(const QString &state) override;
     bool aodOffloadActive() const override;
     bool releaseAodOffload() override;
@@ -40,6 +41,7 @@ private:
     Sidekick::ColorFormat colorFormat() const;
     void reloadFace();
     bool configureTimepiece();
+    bool applyBrightness();
     bool blankDisplay() const;
     void startOffload();
     void stopOffload();
@@ -54,6 +56,7 @@ private:
     bool m_faceLoaded = false;
     bool m_offloadEnabled = false;
     bool m_ambientEnabled = true;
+    bool m_alsEnabled = false;
     bool m_displayOff = false;
     bool m_offloadActive = false;
 };

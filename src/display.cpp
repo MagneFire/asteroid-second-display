@@ -25,6 +25,7 @@ const char MceRequestInterface[] = "com.nokia.mce.request";
 const char MceSignalPath[] = "/com/nokia/mce/signal";
 const char MceSignalInterface[] = "com.nokia.mce.signal";
 const char MceLowPowerModeKey[] = "/system/osso/dsm/display/use_low_power_mode";
+const char MceAlsEnabledKey[] = "/system/osso/dsm/display/als_enabled";
 
 QString facePath()
 {
@@ -94,16 +95,17 @@ void Display::followDisplayStateIfNeeded()
     bus.connect(MceService, MceSignalPath, MceSignalInterface, "config_change_ind", this,
                 SLOT(onMceConfigChanged(QString, QDBusVariant)));
 
-    QDBusMessage lowPowerMode = QDBusMessage::createMethodCall(MceService, MceRequestPath, MceRequestInterface,
-                                                               "get_config");
-    lowPowerMode << QVariant::fromValue(QDBusObjectPath(MceLowPowerModeKey));
-    auto *configWatcher = new QDBusPendingCallWatcher(bus.asyncCall(lowPowerMode), this);
-    connect(configWatcher, &QDBusPendingCallWatcher::finished, this, [this](QDBusPendingCallWatcher *watcher) {
-        QDBusPendingReply<QDBusVariant> reply = *watcher;
-        watcher->deleteLater();
-        if (reply.isValid())
-            onMceConfigChanged(MceLowPowerModeKey, reply.value());
-    });
+    for (const char *key : {MceLowPowerModeKey, MceAlsEnabledKey}) {
+        QDBusMessage get = QDBusMessage::createMethodCall(MceService, MceRequestPath, MceRequestInterface, "get_config");
+        get << QVariant::fromValue(QDBusObjectPath(key));
+        auto *configWatcher = new QDBusPendingCallWatcher(bus.asyncCall(get), this);
+        connect(configWatcher, &QDBusPendingCallWatcher::finished, this, [this, key](QDBusPendingCallWatcher *watcher) {
+            QDBusPendingReply<QDBusVariant> reply = *watcher;
+            watcher->deleteLater();
+            if (reply.isValid())
+                onMceConfigChanged(key, reply.value());
+        });
+    }
 
     QDBusMessage displayStatus = QDBusMessage::createMethodCall(MceService, MceRequestPath, MceRequestInterface,
                                                                 "get_display_status");
@@ -125,6 +127,8 @@ void Display::onMceConfigChanged(const QString &key, const QDBusVariant &value)
 {
     if (key == QLatin1String(MceLowPowerModeKey))
         m_backend->setAmbientEnabled(value.variant().toBool());
+    else if (key == QLatin1String(MceAlsEnabledKey))
+        m_backend->setAmbientLightSensorEnabled(value.variant().toBool());
 }
 
 void Display::applyStoredSettings()

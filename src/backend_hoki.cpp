@@ -13,8 +13,12 @@ namespace SecondDisplay {
 
 namespace {
 
-constexpr std::int16_t TimepieceBrightness = 128;
-constexpr std::int16_t TimepieceBrightnessDim = 40;
+constexpr std::int16_t FixedBrightness = 128;
+constexpr std::int16_t FixedBrightnessDim = 40;
+constexpr float AlsAlpha = 80;
+constexpr float DimScale = 0.6f;
+const QList<std::int16_t> AlsThresholdsLux{25, 50, 100, 200, 400, 500, 800, 1000, 1600, 3000, 5000, 10000};
+const QList<std::int16_t> AlsBrightness{39, 70, 79, 101, 118, 130, 138, 151, 170, 180, 192, 209, 224};
 constexpr std::uint32_t TimepieceBrightMs = 5000;
 constexpr bool TimepieceTiltToBright = true;
 constexpr int BeginDisplayRetries = 20;
@@ -125,11 +129,34 @@ bool HokiBackend::ensureFaceLoaded()
         return false;
     if (!m_client.reset().ok() || !m_client.setColorFormat(colorFormat()).ok() || !uploadFace(*face))
         return false;
-    if (!m_client.setBrightness(true, {}, {}, {TimepieceBrightness}, {TimepieceBrightnessDim}).ok())
+    if (!applyBrightness())
         return false;
-    m_client.setAlsMode(Sidekick::AlsMode::Off, 0, 0);
     m_faceLoaded = true;
     return true;
+}
+
+bool HokiBackend::applyBrightness()
+{
+    if (m_alsEnabled) {
+        QList<std::int16_t> dim;
+        for (std::int16_t level : AlsBrightness)
+            dim.append(static_cast<std::int16_t>(level * DimScale));
+        if (!m_client.setBrightness(true, AlsThresholdsLux, AlsThresholdsLux, AlsBrightness, dim).ok())
+            return false;
+        return m_client.setAlsMode(Sidekick::AlsMode::On, AlsAlpha, AlsAlpha).ok();
+    }
+    if (!m_client.setBrightness(true, {}, {}, {FixedBrightness}, {FixedBrightnessDim}).ok())
+        return false;
+    return m_client.setAlsMode(Sidekick::AlsMode::Off, AlsAlpha, AlsAlpha).ok();
+}
+
+void HokiBackend::setAmbientLightSensorEnabled(bool enabled)
+{
+    if (m_alsEnabled == enabled)
+        return;
+    m_alsEnabled = enabled;
+    if (m_faceLoaded)
+        applyBrightness();
 }
 
 bool HokiBackend::setAodOffloadEnabled(bool enabled)
@@ -223,9 +250,8 @@ bool HokiBackend::uploadFace(const Face &face)
 
 bool HokiBackend::configureTimepiece()
 {
-    if (!m_client.setBrightness(true, {}, {}, {TimepieceBrightness}, {TimepieceBrightnessDim}).ok())
+    if (!applyBrightness())
         return false;
-    m_client.setAlsMode(Sidekick::AlsMode::Off, 0, 0);
     return m_client.setTwmConfig(TimepieceBrightMs, TimepieceTiltToBright).ok();
 }
 

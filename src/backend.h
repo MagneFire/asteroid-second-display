@@ -34,6 +34,7 @@ public:
     virtual bool setBackground(Background) { return false; }
     virtual bool setAodOffloadEnabled(bool) { return false; }
     virtual void setAmbientEnabled(bool) {}
+    virtual void setAmbientLightSensorEnabled(bool) {}
     virtual void displayStateChanged(const QString &) {}
     virtual bool aodOffloadActive() const { return false; }
     virtual bool releaseAodOffload() { return true; }
